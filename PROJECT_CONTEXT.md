@@ -256,4 +256,8 @@ This file is the durable memory across sessions and for the team. To keep it fre
 - Created **this `PROJECT_CONTEXT.md`** as the team handoff / cross-session memory.
 - **Next:** build the real capture script + backfill; set daily sync; pick Phase-5 LLM; finalize digest template.
 
+### [auto] Session 2026-08-07 18:04 · session:d760e490
+_Ended: other. Auto-logged from transcript — 1 request(s). Ask Claude to write a fuller summary if this session mattered._
+- [Continuing from a previous session] # Handoff Summary ## What the User Asked The user wanted to: 1. Understand a newsletter-aggregation pro…
+
 <!-- Add the next session's summary above this line -->
