@@ -12,17 +12,21 @@ auto-sorts them, archives every issue into a structured store, and (in progress)
 
 ## Team workflow (how we collaborate)
 
-We collaborate through this repo — shared files + a shared decision log. GitHub does **not** stream
-live Claude Code chats; instead we keep the discussion durable in `PROJECT_CONTEXT.md`.
+We work in **separate branches** and share changes via **pull requests**. Each person runs their
+own Claude Code session; we stay in sync through the repo + `PROJECT_CONTEXT.md`, and review each
+other's work in PRs. **Full details: [`CONTRIBUTING.md`](CONTRIBUTING.md).**
 
-**Every session:**
-1. `git pull` — get the latest.
-2. Read the top of [`PROJECT_CONTEXT.md`](PROJECT_CONTEXT.md) (esp. the **Session Log**) to see what's new.
-3. Do your work / discuss with Claude Code in your own session.
-4. Ask Claude: *"update PROJECT_CONTEXT.md with this session"* → appends a dated Session Log entry.
-5. `git add -A && git commit && git push`.
+**The loop:**
+1. `git checkout main && git pull` — get the latest.
+2. `git checkout -b <yourname>/<topic>` — your own branch.
+3. Read [`PROJECT_CONTEXT.md`](PROJECT_CONTEXT.md) (esp. the **Session Log**), then do your work.
+4. Ask Claude: *"update PROJECT_CONTEXT.md with this session"* when it matters.
+5. `git commit` → `git push -u origin <yourname>/<topic>` → **open a PR into `main`**.
+6. The other person reviews the PR's **Files changed** diff and merges it.
 
 Keep `data/sources.csv` as the live status tracker; keep design in `PHASE4_DESIGN.md`.
+GitHub does **not** stream live Claude Code chats — the durable discussion record is the
+`PROJECT_CONTEXT.md` Session Log, which travels with each PR.
 
 ---
 
