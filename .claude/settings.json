@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "shell": "bash",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/session_log.py\" 2>/dev/null || true",
+            "timeout": 20,
+            "statusMessage": "Appending session log to PROJECT_CONTEXT.md"
+          }
+        ]
+      }
+    ]
+  }
+}
