@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:apps="http://schemas.google.com/apps/2006">
+  <title>Newsletter Aggregator - Lawfare to Legal</title>
+  <id>tag:mail.google.com,2008:filters:newsletter-aggregator-lawfare</id>
+  <updated>2026-08-02T00:00:00Z</updated>
+  <author>
+    <name>notifyy1008</name>
+    <email>notifyy1008@gmail.com</email>
+  </author>
+
+  <entry>
+    <category term="filter"></category>
+    <title>Lawfare -> 3-Legal</title>
+    <id>tag:mail.google.com,2008:filter:sender-lawfare</id>
+    <updated>2026-08-02T00:00:00Z</updated>
+    <content></content>
+    <apps:property name="from" value="lawfare@substack.com"/>
+    <apps:property name="label" value="Newsletters/3-Legal"/>
+    <apps:property name="shouldArchive" value="false"/>
+    <apps:property name="sizeOperator" value="s_sl"/>
+    <apps:property name="sizeUnit" value="s_smb"/>
+  </entry>
+
+</feed>

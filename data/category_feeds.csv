@@ -1,0 +1,10 @@
+segment,segment_label,subscribe_email,gmail_label
+1-TechAI,Tech / AI,notifyy1008+techai@gmail.com,Newsletters/1-TechAI
+2-BizFinance,Business & Finance / Investing,notifyy1008+biz@gmail.com,Newsletters/2-BizFinance
+3-Legal,Legal / Law,notifyy1008+legal@gmail.com,Newsletters/3-Legal
+4-HRPeopleOps,HR / People Ops,notifyy1008+hr@gmail.com,Newsletters/4-HR
+5-GitHubRepos,GitHub Top Repos / New Releases,notifyy1008+github@gmail.com,Newsletters/5-GitHub
+6-IndieHacker,Micro-Startups / Indie Hacker,notifyy1008+indie@gmail.com,Newsletters/6-IndieHacker
+7-Absurdist,Absurdist News Recap,notifyy1008+satire@gmail.com,Newsletters/7-Absurdist
+8-MicroSmallCap,Micro-Cap / Small-Cap Stocks,notifyy1008+smallcap@gmail.com,Newsletters/8-SmallCap
+9-MainstreamNews,Mainstream News (NYT / WaPo / Guardian etc),notifyy1008+news@gmail.com,Newsletters/9-News

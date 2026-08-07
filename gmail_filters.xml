@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:apps="http://schemas.google.com/apps/2006">
+  <title>Newsletter Aggregator - Gmail Filters</title>
+  <id>tag:mail.google.com,2008:filters:newsletter-aggregator</id>
+  <updated>2026-08-02T00:00:00Z</updated>
+  <author>
+    <name>notifyy1008</name>
+    <email>notifyy1008@gmail.com</email>
+  </author>
+
+  <entry>
+    <category term="filter"></category>
+    <title>Newsletters/1-TechAI</title>
+    <id>tag:mail.google.com,2008:filter:techai</id>
+    <updated>2026-08-02T00:00:00Z</updated>
+    <content></content>
+    <apps:property name="hasTheWord" value="deliveredto:notifyy1008+techai@gmail.com"/>
+    <apps:property name="label" value="Newsletters/1-TechAI"/>
+    <apps:property name="shouldArchive" value="false"/>
+    <apps:property name="sizeOperator" value="s_sl"/>
+    <apps:property name="sizeUnit" value="s_smb"/>
+  </entry>
+
+  <entry>
+    <category term="filter"></category>
+    <title>Newsletters/2-BizFinance</title>
+    <id>tag:mail.google.com,2008:filter:biz</id>
+    <updated>2026-08-02T00:00:00Z</updated>
+    <content></content>
+    <apps:property name="hasTheWord" value="deliveredto:notifyy1008+biz@gmail.com"/>
+    <apps:property name="label" value="Newsletters/2-BizFinance"/>
+    <apps:property name="shouldArchive" value="false"/>
+    <apps:property name="sizeOperator" value="s_sl"/>
+    <apps:property name="sizeUnit" value="s_smb"/>
+  </entry>
+
+  <entry>
+    <category term="filter"></category>
+    <title>Newsletters/3-Legal</title>
+    <id>tag:mail.google.com,2008:filter:legal</id>
+    <updated>2026-08-02T00:00:00Z</updated>
+    <content></content>
+    <apps:property name="hasTheWord" value="deliveredto:notifyy1008+legal@gmail.com"/>
+    <apps:property name="label" value="Newsletters/3-Legal"/>
+    <apps:property name="shouldArchive" value="false"/>
+    <apps:property name="sizeOperator" value="s_sl"/>
+    <apps:property name="sizeUnit" value="s_smb"/>
+  </entry>
+
+  <entry>
+    <category term="filter"></category>
+    <title>Newsletters/4-HR</title>
+    <id>tag:mail.google.com,2008:filter:hr</id>
+    <updated>2026-08-02T00:00:00Z</updated>
+    <content></content>
+    <apps:property name="hasTheWord" value="deliveredto:notifyy1008+hr@gmail.com"/>
+    <apps:property name="label" value="Newsletters/4-HR"/>
+    <apps:property name="shouldArchive" value="false"/>
+    <apps:property name="sizeOperator" value="s_sl"/>
+    <apps:property name="sizeUnit" value="s_smb"/>
+  </entry>
+
+  <entry>
+    <category term="filter"></category>
+    <title>Newsletters/5-GitHub</title>
+    <id>tag:mail.google.com,2008:filter:github</id>
+    <updated>2026-08-02T00:00:00Z</updated>
+    <content></content>
+    <apps:property name="hasTheWord" value="deliveredto:notifyy1008+github@gmail.com"/>
+    <apps:property name="label" value="Newsletters/5-GitHub"/>
+    <apps:property name="shouldArchive" value="false"/>
+    <apps:property name="sizeOperator" value="s_sl"/>
+    <apps:property name="sizeUnit" value="s_smb"/>
+  </entry>
+
+  <entry>
+    <category term="filter"></category>
+    <title>Newsletters/6-IndieHacker</title>
+    <id>tag:mail.google.com,2008:filter:indie</id>
+    <updated>2026-08-02T00:00:00Z</updated>
+    <content></content>
+    <apps:property name="hasTheWord" value="deliveredto:notifyy1008+indie@gmail.com"/>
+    <apps:property name="label" value="Newsletters/6-IndieHacker"/>
+    <apps:property name="shouldArchive" value="false"/>
+    <apps:property name="sizeOperator" value="s_sl"/>
+    <apps:property name="sizeUnit" value="s_smb"/>
+  </entry>
+
+  <entry>
+    <category term="filter"></category>
+    <title>Newsletters/7-Absurdist</title>
+    <id>tag:mail.google.com,2008:filter:satire</id>
+    <updated>2026-08-02T00:00:00Z</updated>
+    <content></content>
+    <apps:property name="hasTheWord" value="deliveredto:notifyy1008+satire@gmail.com"/>
+    <apps:property name="label" value="Newsletters/7-Absurdist"/>
+    <apps:property name="shouldArchive" value="false"/>
+    <apps:property name="sizeOperator" value="s_sl"/>
+    <apps:property name="sizeUnit" value="s_smb"/>
+  </entry>
+
+  <entry>
+    <category term="filter"></category>
+    <title>Newsletters/8-SmallCap</title>
+    <id>tag:mail.google.com,2008:filter:smallcap</id>
+    <updated>2026-08-02T00:00:00Z</updated>
+    <content></content>
+    <apps:property name="hasTheWord" value="deliveredto:notifyy1008+smallcap@gmail.com"/>
+    <apps:property name="label" value="Newsletters/8-SmallCap"/>
+    <apps:property name="shouldArchive" value="false"/>
+    <apps:property name="sizeOperator" value="s_sl"/>
+    <apps:property name="sizeUnit" value="s_smb"/>
+  </entry>
+
+  <entry>
+    <category term="filter"></category>
+    <title>Newsletters/9-News</title>
+    <id>tag:mail.google.com,2008:filter:news</id>
+    <updated>2026-08-02T00:00:00Z</updated>
+    <content></content>
+    <apps:property name="hasTheWord" value="deliveredto:notifyy1008+news@gmail.com"/>
+    <apps:property name="label" value="Newsletters/9-News"/>
+    <apps:property name="shouldArchive" value="false"/>
+    <apps:property name="sizeOperator" value="s_sl"/>
+    <apps:property name="sizeUnit" value="s_smb"/>
+  </entry>
+
+</feed>

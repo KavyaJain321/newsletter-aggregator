@@ -1,0 +1,51 @@
+# ============================================================
+#  SECRETS — NEVER COMMIT (Gmail OAuth token & credentials)
+# ============================================================
+**/credentials.json
+**/*.local.json
+**/google-skill.local.json
+tools/google-skill/.claude/
+*.env
+.env
+.env.*
+*.key
+*.pem
+*.keys.json
+token.json
+
+# ============================================================
+#  Dependencies (regenerable via `pnpm install`)
+# ============================================================
+**/node_modules/
+tools/google-skill/node_modules/
+
+# ============================================================
+#  Generated data — regenerable; the raw .eml archive also
+#  contains third-party (copyrighted) newsletter content, so
+#  it is kept LOCAL and not pushed.
+# ============================================================
+data/archive/*
+!data/archive/.gitkeep
+*.db
+*.sqlite
+*.sqlite3
+
+# ============================================================
+#  Python
+# ============================================================
+__pycache__/
+*.pyc
+.venv/
+venv/
+.mypy_cache/
+
+# ============================================================
+#  OS / editor / logs
+# ============================================================
+.DS_Store
+Thumbs.db
+*.swp
+*.log
+.idea/
+.vscode/
+scratchpad/
