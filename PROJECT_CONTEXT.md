@@ -235,6 +235,24 @@ This file is the durable memory across sessions and for the team. To keep it fre
 
 ## 14. SESSION LOG (append newest at top)
 
+### Session 2026-09-09→12 — Pipeline MVP built (capture → extract → generate), Tech/AI pilot
+- Fresh full clone replaced the old partial local dir; work on branch **`feat/pipeline-mvp`**.
+- Built `src/`: `config` (paths, segments, sender→source map), `gmail_client` (wraps the local
+  Gmail-MCP OAuth store), `clean` (HTML→text, ad/footer strip, TLDR footnote→URL), `classify`,
+  `db` (SQLite per `PHASE4_DESIGN.md`), `capture`, `extract` (MAP: per-issue story cards with
+  source-link validation), `generate` (reduce → one issue), provider-agnostic `llm` (+ mock), `cli`.
+  Prompts in `prompts/`. Run: `python -m src.cli capture|extract|generate --segment tech ...`.
+- **LLM = local qwen3:14b** (Ollama over Tailscale, RTX 3080 Ti); Groq kept as fallback. Never Claude.
+  Gotchas: Groq needs a real `User-Agent` (Cloudflare 1010); gpt-oss-20b returns empty content for
+  MAP; qwen3 with thinking OFF emits empty cards → keep thinking ON (empty-card guard added).
+- First output: `generated/2026-09-09-tech-OURS.md` — 3 sources (TLDR, Superhuman, Neuron) → 1 issue.
+  Format good; open quality gaps: Superhuman promo blast leaks an ad, lead story drops the richest
+  facts + Neuron attribution, minor hallucinations. Next: mark promos `is_issue=0`, gen-side ad
+  filter, tighten generate prompt (use facts, cite every source, invent nothing).
+- `research/editorial-strategy/` = editorial playbook/templates research.
+- NOTE: local `data/sources.csv` has a stale KTN-schema copy with 2026-09-09 scan notes — NOT
+  committed (would regress schema + expose KTN feed URLs publicly). Needs a merge into the Gmail schema.
+
 ### Session 2026-08-06/07 — Setup verification, Gmail API, archive design, product strategy
 - Pivoted fully from KTN → Gmail +tags (done earlier); this session focused on verification + design.
 - Set up **Gmail API read access** via google-skill: created own Google Cloud OAuth (project

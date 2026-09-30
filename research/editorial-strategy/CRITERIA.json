@@ -1,0 +1,15 @@
+{
+  "criteria": [
+    {"id": "sq1-engagement", "desc": "Engagement levers answered with >=2 independent sources", "passes": false},
+    {"id": "sq2-retention", "desc": "Retention/habit drivers answered with >=2 independent sources", "passes": false},
+    {"id": "sq3-formats", "desc": "Email content-format tradeoffs mapped with proof", "passes": false},
+    {"id": "sq4-transfer", "desc": "Cross-medium transfer judged (what survives as text, what flops) with examples", "passes": false},
+    {"id": "sq5-winners", "desc": "Winner teardown: >=5 named newsletters, why format/voice drove growth+retention", "passes": false},
+    {"id": "sq-per-segment", "desc": "All 9 segments: ranked formats + persona + proven examples + avoid list", "passes": false},
+    {"id": "sq-adversarial", "desc": "Strongest case that clever/novel formats HURT is stated and weighed", "passes": false},
+    {"id": "global-steelman", "desc": "Every major stance steelmanned (novelty vs consistency)", "passes": false},
+    {"id": "global-contradictions", "desc": "Contradictions surfaced, not smoothed", "passes": false},
+    {"id": "global-graded", "desc": "Every load-bearing claim graded (strong/moderate/weak/anecdotal)", "passes": false},
+    {"id": "global-no-fab", "desc": "No unverified source presented as fact; named examples real", "passes": false}
+  ]
+}

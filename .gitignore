@@ -49,3 +49,7 @@ Thumbs.db
 .idea/
 .vscode/
 scratchpad/
+
+# LLM call logs contain third-party newsletter text - keep local
+logs/
+data/*.backup-*.csv
