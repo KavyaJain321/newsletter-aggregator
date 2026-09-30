@@ -60,4 +60,30 @@
     <apps:property name="sizeUnit" value="s_smb"/>
   </entry>
 
+  <entry>
+    <category term="filter"></category>
+    <title>Bloomberg (Money Stuff + Five Things) -> 2-BizFinance</title>
+    <id>tag:mail.google.com,2008:filter:sender-bloomberg</id>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <content></content>
+    <apps:property name="from" value="bloomberg.com"/>
+    <apps:property name="label" value="Newsletters/2-BizFinance"/>
+    <apps:property name="shouldArchive" value="false"/>
+    <apps:property name="sizeOperator" value="s_sl"/>
+    <apps:property name="sizeUnit" value="s_smb"/>
+  </entry>
+
+  <entry>
+    <category term="filter"></category>
+    <title>Yahoo Finance Morning Brief -> 2-BizFinance</title>
+    <id>tag:mail.google.com,2008:filter:sender-yahoofinance</id>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <content></content>
+    <apps:property name="from" value="finance.yahoo.com"/>
+    <apps:property name="label" value="Newsletters/2-BizFinance"/>
+    <apps:property name="shouldArchive" value="false"/>
+    <apps:property name="sizeOperator" value="s_sl"/>
+    <apps:property name="sizeUnit" value="s_smb"/>
+  </entry>
+
 </feed>
