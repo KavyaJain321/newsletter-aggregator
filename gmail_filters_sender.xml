@@ -62,7 +62,7 @@
 
   <entry>
     <category term="filter"></category>
-    <title>Bloomberg (Money Stuff + Five Things) -> 2-BizFinance</title>
+    <title>Bloomberg (Money Stuff + Businessweek Daily) -> 2-BizFinance</title>
     <id>tag:mail.google.com,2008:filter:sender-bloomberg</id>
     <updated>2026-09-30T00:00:00Z</updated>
     <content></content>
@@ -80,6 +80,97 @@
     <updated>2026-09-30T00:00:00Z</updated>
     <content></content>
     <apps:property name="from" value="finance.yahoo.com"/>
+    <apps:property name="label" value="Newsletters/2-BizFinance"/>
+    <apps:property name="shouldArchive" value="false"/>
+    <apps:property name="sizeOperator" value="s_sl"/>
+    <apps:property name="sizeUnit" value="s_smb"/>
+  </entry>
+
+  <entry>
+    <category term="filter"></category>
+    <title>Snacks (Sherwood/Robinhood) -> 2-BizFinance</title>
+    <id>tag:mail.google.com,2008:filter:sender-snacks</id>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <content></content>
+    <apps:property name="from" value="snacks.robinhood.com"/>
+    <apps:property name="label" value="Newsletters/2-BizFinance"/>
+    <apps:property name="shouldArchive" value="false"/>
+    <apps:property name="sizeOperator" value="s_sl"/>
+    <apps:property name="sizeUnit" value="s_smb"/>
+  </entry>
+
+  <entry>
+    <category term="filter"></category>
+    <title>Axios Markets -> 2-BizFinance (exact sender, safe vs Axios AM)</title>
+    <id>tag:mail.google.com,2008:filter:sender-axiosmarkets</id>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <content></content>
+    <apps:property name="from" value="markets@axios.com"/>
+    <apps:property name="label" value="Newsletters/2-BizFinance"/>
+    <apps:property name="shouldArchive" value="false"/>
+    <apps:property name="sizeOperator" value="s_sl"/>
+    <apps:property name="sizeUnit" value="s_smb"/>
+  </entry>
+
+  <entry>
+    <category term="filter"></category>
+    <title>Axios Pro Rata -> 2-BizFinance (exact sender; verify after confirm)</title>
+    <id>tag:mail.google.com,2008:filter:sender-axiosprorata</id>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <content></content>
+    <apps:property name="from" value="pro-rata@axios.com"/>
+    <apps:property name="label" value="Newsletters/2-BizFinance"/>
+    <apps:property name="shouldArchive" value="false"/>
+    <apps:property name="sizeOperator" value="s_sl"/>
+    <apps:property name="sizeUnit" value="s_smb"/>
+  </entry>
+
+  <entry>
+    <category term="filter"></category>
+    <title>Net Interest -> 2-BizFinance (exact Substack sender)</title>
+    <id>tag:mail.google.com,2008:filter:sender-netinterest</id>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <content></content>
+    <apps:property name="from" value="netinterest@substack.com"/>
+    <apps:property name="label" value="Newsletters/2-BizFinance"/>
+    <apps:property name="shouldArchive" value="false"/>
+    <apps:property name="sizeOperator" value="s_sl"/>
+    <apps:property name="sizeUnit" value="s_smb"/>
+  </entry>
+
+  <entry>
+    <category term="filter"></category>
+    <title>Doomberg -> 2-BizFinance (exact Substack sender)</title>
+    <id>tag:mail.google.com,2008:filter:sender-doomberg</id>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <content></content>
+    <apps:property name="from" value="doomberg@substack.com"/>
+    <apps:property name="label" value="Newsletters/2-BizFinance"/>
+    <apps:property name="shouldArchive" value="false"/>
+    <apps:property name="sizeOperator" value="s_sl"/>
+    <apps:property name="sizeUnit" value="s_smb"/>
+  </entry>
+
+  <entry>
+    <category term="filter"></category>
+    <title>Stratechery -> 2-BizFinance</title>
+    <id>tag:mail.google.com,2008:filter:sender-stratechery</id>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <content></content>
+    <apps:property name="from" value="stratechery.com"/>
+    <apps:property name="label" value="Newsletters/2-BizFinance"/>
+    <apps:property name="shouldArchive" value="false"/>
+    <apps:property name="sizeOperator" value="s_sl"/>
+    <apps:property name="sizeUnit" value="s_smb"/>
+  </entry>
+
+  <entry>
+    <category term="filter"></category>
+    <title>EntryPoint (Sherwood) -> 2-BizFinance (exact sender)</title>
+    <id>tag:mail.google.com,2008:filter:sender-entrypoint</id>
+    <updated>2026-09-30T00:00:00Z</updated>
+    <content></content>
+    <apps:property name="from" value="entrypoint@sherwoodmedia.com"/>
     <apps:property name="label" value="Newsletters/2-BizFinance"/>
     <apps:property name="shouldArchive" value="false"/>
     <apps:property name="sizeOperator" value="s_sl"/>
