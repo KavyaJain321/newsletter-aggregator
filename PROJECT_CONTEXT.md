@@ -235,6 +235,18 @@ This file is the durable memory across sessions and for the team. To keep it fre
 
 ## 14. SESSION LOG (append newest at top)
 
+### Session 2026-09-30→10-03 — Finance expansion + newsletter X-factor research
+- Finance segment expanded (branch `finance/add-free-newsletters`): exact-sender Gmail filters for
+  Money Stuff/Businessweek, Snacks, Axios Markets, Net Interest, Doomberg, EntryPoint, etc.
+- Set up **Agent-Reach** (cloned beside the repo, venv install, Exa search via mcporter + Jina +
+  yt-dlp). Reddit/X direct channels intentionally NOT enabled (need personal cookies, ban risk).
+- Deep research on 21 finance + tech newsletters → `research/newsletter-xfactor/` (README = synthesis,
+  A–E = per-newsletter deep dives grounded in real inbox issues).
+- Key findings: lens/voice beats news; reader pain = overlap, disguised ads, hype, paywall teasers →
+  validates dedup + ad-strip + attribution. Many structures are parseable without an LLM.
+- **Action items:** Morning Brew paused delivery 2026-09-02 (re-confirm in inbox); verify Stratechery;
+  confirm Axios Pro Rata; The Hustle "Yes, I'm real"; rename Average Joe → Finks Daily.
+
 ### Session 2026-08-06/07 — Setup verification, Gmail API, archive design, product strategy
 - Pivoted fully from KTN → Gmail +tags (done earlier); this session focused on verification + design.
 - Set up **Gmail API read access** via google-skill: created own Google Cloud OAuth (project
