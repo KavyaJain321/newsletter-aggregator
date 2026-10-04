@@ -35,6 +35,7 @@ data/archive/*
 #  issues contain third-party newsletter text: LOCAL ONLY.
 # ============================================================
 data/llm_logs/
+data/host_monitor/
 out/
 .pytest_cache/
 

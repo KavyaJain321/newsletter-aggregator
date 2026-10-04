@@ -159,3 +159,13 @@ def test_mock_provider_injection(settings):
 
 def test_empty_output_is_llm_error():
     assert issubclass(EmptyOutput, Exception)
+
+
+def test_remote_mode_never_calls_the_shared_port(settings):
+    from dataclasses import replace
+    s = replace(settings, ollama_remote_ssh="gpuuser@gpu-host.test", ollama_base_url="http://gpu-host.test:11434")
+    sess = FakeSession()
+    with pytest.raises(ProviderUnavailable, match="llm_session"):
+        OllamaProvider(s, session=sess).chat([{"role": "user", "content": "x"}], json_mode=False, schema=None,
+                                             think=False, temperature=0, max_tokens=8)
+    assert sess.calls == []

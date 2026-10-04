@@ -27,6 +27,7 @@ from typing import Any, Callable, Protocol
 import requests
 
 from ..config.settings import Settings
+from .host_monitor import HostUnsafe
 from .json_repair import JSONRepairError, parse_json, strip_reasoning
 
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) newsletter-aggregator-pipeline/0.1"
@@ -124,6 +125,10 @@ class OllamaProvider(_HTTPProvider):
         self.model = settings.ollama_model
 
     def chat(self, messages, *, json_mode, schema, think, temperature, max_tokens) -> ChatResult:
+        if self.s.ollama_remote_ssh and not self.base.startswith("http://127.0.0.1"):
+            # Never send work to the shared host's public port: only our private instance,
+            # reached through the tunnel that llm_session() opens.
+            raise ProviderUnavailable("ollama: on-demand host - requests must go through llm_session()")
         body: dict[str, Any] = {
             "model": self.model, "messages": messages, "stream": False,
             "options": {"temperature": temperature, "num_predict": max_tokens},
@@ -148,12 +153,13 @@ class OllamaProvider(_HTTPProvider):
         return ChatResult(text=text, model=data.get("model", self.model), usage=usage)
 
     def health(self) -> tuple[bool, str]:
+        if self.s.ollama_remote_ssh and not self.base.startswith("http://127.0.0.1"):
+            # On-demand private instance on the shared host: judged over SSH, not via a URL.
+            from .remote_ollama import remote_health
+            return remote_health(self.s)
         try:
             resp = self.session.get(f"{self.base}/api/tags", timeout=(3.0, 10.0))
         except requests.RequestException as e:
-            if self.s.ollama_remote_ssh:  # on-demand host: stopped between runs by design
-                from .remote_ollama import remote_health
-                return remote_health(self.s)
             return False, f"not reachable at {self.base} ({e.__class__.__name__})"
         if resp.status_code != 200:
             return False, f"HTTP {resp.status_code} from {self.base}/api/tags"
@@ -244,8 +250,13 @@ PROVIDERS: dict[str, Callable[..., Provider]] = {"ollama": OllamaProvider, "groq
 
 
 class LLMClient:
-    def __init__(self, settings: Settings, providers: list[Provider] | None = None):
+    def __init__(self, settings: Settings, providers: list[Provider] | None = None,
+                 before_call: dict[str, Callable[[], None]] | None = None):
+        """`before_call` maps a provider name to a gate run before each of its requests
+        (e.g. the shared-host health monitor). A gate raising HostUnsafe makes that provider
+        unavailable for the call, so the client falls back to the next provider."""
         self.s = settings
+        self.before_call = before_call or {}
         if providers is None:
             unknown = [p for p in settings.llm_provider_order if p not in PROVIDERS]
             if unknown:
@@ -270,6 +281,12 @@ class LLMClient:
                 attempts += 1
                 t0 = time.perf_counter()
                 try:
+                    gate = self.before_call.get(provider.name)
+                    if gate is not None:
+                        try:
+                            gate()
+                        except HostUnsafe as e:
+                            raise ProviderUnavailable(f"{provider.name}: {e}") from e
                     res = provider.chat(messages, json_mode=want_json, schema=schema, think=think,
                                         temperature=temperature, max_tokens=max_tokens)
                     if not res.text.strip():

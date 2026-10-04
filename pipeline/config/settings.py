@@ -67,12 +67,21 @@ class Settings:
     # On-demand remote Ollama (instruction.md option A). Off unless OLLAMA_REMOTE_SSH is set.
     ollama_remote_ssh: str | None = None
     ollama_remote_bin: str = "$HOME/ollama/bin/ollama"
+    ollama_remote_port: int = 11436        # private: NOT forwarded by the host's shared proxy
+    ollama_tunnel_port: int = 11437        # local end of our SSH tunnel to that port
     ollama_remote_max_minutes: int = 90
     ollama_min_free_vram_mb: int = 10000
     ollama_keep_alive: str = "2m"
     remote_tz: str = "Asia/Kolkata"
     remote_blackout: str = "03:50-06:50"      # host is powered off 04:00-~06:45
     remote_blackout_days: str = "1-6"         # ISO weekdays: Mon-Sat (Sunday stays on)
+    # Shared-host health guard (pipeline/llm/host_monitor.py)
+    host_start_gpu_temp_c: float = 80.0
+    host_warn_gpu_temp_c: float = 82.0
+    host_resume_gpu_temp_c: float = 78.0
+    host_critical_gpu_temp_c: float = 87.0
+    host_monitor_interval_s: float = 30.0
+    host_max_cooldown_s: float = 600.0
 
     @property
     def groq_key_set(self) -> bool:
@@ -113,10 +122,18 @@ def load_settings(env: dict[str, str] | None = None, dotenv_path: Path | None = 
         llm_log_text=g("LLM_LOG_TEXT", "true").strip().lower() in {"1", "true", "yes", "on"},
         ollama_remote_ssh=(g("OLLAMA_REMOTE_SSH") or "").strip() or None,
         ollama_remote_bin=g("OLLAMA_REMOTE_BIN", "$HOME/ollama/bin/ollama"),
+        ollama_remote_port=int(g("OLLAMA_REMOTE_PORT", "11436")),
+        ollama_tunnel_port=int(g("OLLAMA_TUNNEL_PORT", "11437")),
         ollama_remote_max_minutes=int(g("OLLAMA_REMOTE_MAX_MINUTES", "90")),
         ollama_min_free_vram_mb=int(g("OLLAMA_MIN_FREE_VRAM_MB", "10000")),
         ollama_keep_alive=g("OLLAMA_KEEP_ALIVE", "2m"),
         remote_tz=g("REMOTE_TZ", "Asia/Kolkata"),
         remote_blackout=g("REMOTE_BLACKOUT", "03:50-06:50"),
         remote_blackout_days=g("REMOTE_BLACKOUT_DAYS", "1-6"),
+        host_start_gpu_temp_c=float(g("HOST_START_GPU_TEMP_C", "80")),
+        host_warn_gpu_temp_c=float(g("HOST_WARN_GPU_TEMP_C", "82")),
+        host_resume_gpu_temp_c=float(g("HOST_RESUME_GPU_TEMP_C", "78")),
+        host_critical_gpu_temp_c=float(g("HOST_CRITICAL_GPU_TEMP_C", "87")),
+        host_monitor_interval_s=float(g("HOST_MONITOR_INTERVAL_S", "30")),
+        host_max_cooldown_s=float(g("HOST_MAX_COOLDOWN_S", "600")),
     )

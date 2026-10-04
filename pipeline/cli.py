@@ -18,7 +18,9 @@ from .config.registry import load_registry
 from .config.settings import Settings, load_settings
 from .ingest.gmail import GmailClient
 from .llm.client import LLMClient, NoProviderAvailable
+from .llm.host_monitor import Thresholds, assess, describe
 from .llm.remote_ollama import RemoteOllama, RemoteOllamaError
+from .llm.session import llm_session
 from .store.db import check_writable
 
 
@@ -76,19 +78,28 @@ def run_checks(settings: Settings, deep: bool = False, gmail: GmailClient | None
         checks.append(Check("llm: at least one provider", "OK" if any_ok else "FAIL",
                             "ready" if any_ok else "no provider is usable - see lines above"))
         if deep and any_ok:
-            remote = RemoteOllama(settings) if (settings.ollama_remote_ssh and llm is None) else None
-            try:
-                if remote is not None:
-                    checks.append(Check("ollama: on-demand start", "OK", remote.up()))
+            if settings.ollama_remote_ssh and llm is None:
+                # Full guarded session: health gate -> start -> monitor -> test -> stop.
+                try:
+                    with llm_session(settings) as session_client:
+                        checks.append(_live_json_check(session_client))
+                    checks.append(Check("ollama: on-demand session", "OK",
+                                        "health-gated start, monitored, stopped"))
+                except RemoteOllamaError as e:
+                    checks.append(Check("ollama: on-demand session", "FAIL", str(e)))
+            else:
                 checks.append(_live_json_check(client))
-            except RemoteOllamaError as e:
-                checks.append(Check("ollama: on-demand start", "FAIL", str(e)))
-            finally:
-                if remote is not None and remote.owned:
-                    try:
-                        checks.append(Check("ollama: on-demand stop", "OK", remote.down()))
-                    except RemoteOllamaError as e:
-                        checks.append(Check("ollama: on-demand stop", "FAIL", str(e)))
+
+    # 3b. Shared GPU host health (read-only)
+    if settings.ollama_remote_ssh and llm is None:
+        try:
+            snap = RemoteOllama(settings).probe()
+            level, reasons = assess(snap, Thresholds.from_settings(settings), "start")
+            checks.append(Check("host health", "OK" if level == "ok" else "WARN",
+                                describe(snap) + ("" if level == "ok" else " | would refuse: " + "; ".join(reasons)),
+                                required=False))
+        except RemoteOllamaError as e:
+            checks.append(Check("host health", "WARN", str(e), required=False))
 
     # 4. Storage
     ok, detail = check_writable(settings.db_path)
@@ -123,11 +134,14 @@ def _ollama_cmd(settings: Settings, action: str) -> int:
     try:
         if action == "status":
             st = ro.status()
-            print(f"host={settings.ollama_remote_ssh} reachable={st.reachable} server_up={st.server_up} "
-                  f"ours_pid={st.ours_pid} gpu_free_mb={st.vram_free_mb} host_time={st.host_weekday} {st.host_time} "
-                  f"binary_ok={st.binary_ok} model_present={st.model_present} {st.detail}")
+            print(f"host={settings.ollama_remote_ssh} reachable={st.reachable} "
+                  f"our_private_server(:{settings.ollama_remote_port})_up={st.server_up} ours_pid={st.ours_pid} "
+                  f"shared_port_11434_up={st.shared_port_up} gpu_free_mb={st.vram_free_mb} "
+                  f"host_time={st.host_weekday} {st.host_time} binary_ok={st.binary_ok} "
+                  f"model_present={st.model_present} {st.detail}")
         elif action == "up":
-            print(ro.up())
+            # Manual start only (no tunnel: this process exits). Runs use llm_session().
+            print(ro.up(open_tunnel=False))
         else:
             ro.owned = False  # down() re-checks ownership on the host before stopping anything
             print(ro.down())
@@ -135,6 +149,28 @@ def _ollama_cmd(settings: Settings, action: str) -> int:
         print(f"ERROR: {e}")
         return 1
     return 0
+
+
+def _host_cmd(settings: Settings, action: str, interval: float, count: int) -> int:
+    if not settings.ollama_remote_ssh:
+        print("OLLAMA_REMOTE_SSH is not set: no shared GPU host configured")
+        return 2
+    import time
+    ro, th = RemoteOllama(settings), Thresholds.from_settings(settings)
+    n = 1 if action == "status" else count
+    worst = "ok"
+    for i in range(n):
+        snap = ro.probe()
+        start_level, start_reasons = assess(snap, th, "start")
+        run_level, run_reasons = assess(snap, th, "run", model_loaded=True)
+        stamp = snap.ts[11:19] + "Z"
+        print(f"[{stamp}] {describe(snap)}")
+        print(f"           start: {start_level.upper()}{' - ' + '; '.join(start_reasons) if start_reasons else ''}"
+              f" | during a run: {run_level.upper()}{' - ' + '; '.join(run_reasons) if run_reasons else ''}")
+        worst = max(worst, run_level, key=["ok", "warn", "critical"].index)
+        if i < n - 1:
+            time.sleep(interval)
+    return 0 if worst == "ok" else 1
 
 
 def _print(checks: list[Check]) -> int:
@@ -155,6 +191,10 @@ def main(argv: list[str] | None = None) -> int:
     doc.add_argument("--deep", action="store_true", help="also run one live JSON completion")
     oll = sub.add_parser("ollama", help="control the on-demand remote Ollama (OLLAMA_REMOTE_SSH)")
     oll.add_argument("action", choices=["status", "up", "down"])
+    host = sub.add_parser("host", help="read-only health of the shared GPU host (heat, load, memory)")
+    host.add_argument("action", choices=["status", "watch"])
+    host.add_argument("--interval", type=float, default=30.0, help="seconds between samples (watch)")
+    host.add_argument("--count", type=int, default=10, help="number of samples (watch)")
     args = parser.parse_args(argv)
     if hasattr(sys.stdout, "reconfigure"):  # never crash on a non-ASCII detail (Windows consoles)
         sys.stdout.reconfigure(errors="replace")
@@ -162,6 +202,8 @@ def main(argv: list[str] | None = None) -> int:
         return _print(run_checks(load_settings(), deep=args.deep))
     if args.command == "ollama":
         return _ollama_cmd(load_settings(), args.action)
+    if args.command == "host":
+        return _host_cmd(load_settings(), args.action, args.interval, args.count)
     return 2
 
 

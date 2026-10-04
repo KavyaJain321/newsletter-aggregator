@@ -1,6 +1,6 @@
 # pipeline/ — newsletter generation pipeline
 
-Built step by step from [`instruction.md`](../instruction.md). **Status: Step 0 (setup & config) done, including on-demand GPU host control.**
+Built step by step from [`instruction.md`](../instruction.md). **Status: Step 0 (setup & config) done, including isolated on-demand GPU host control and health monitoring.**
 
 ## Setup
 ```bash
@@ -27,28 +27,38 @@ output dirs writable.
 | `ingest/gmail.py` | Read-only auth + profile; refuses any token scope beyond `gmail.readonly` |
 | `store/db.py` | SQLite connect + writability probe (schema arrives in Step 4) |
 | `llm/remote_ollama.py` | On-demand Ollama on the shared GPU host over SSH: guarded start, tagged process, stops only its own |
-| `cli.py` | `doctor [--deep]`, `ollama status|up|down` |
+| `llm/host_monitor.py` | Shared-host health: GPU heat/util/power/fan/VRAM/throttling, CPU load, RAM, swap, disk. Start gate, background watch, per-request gate |
+| `llm/session.py` | `llm_session()`: the one way a run gets an LLM client - start, monitor, tunnel, always stop |
+| `cli.py` | `doctor [--deep]`, `ollama status|up|down`, `host status|watch` |
 
 Other packages are empty placeholders named for the step that fills them.
 
 ## On-demand GPU host (trijya-3)
 The team's `qwen3:14b` runs on the shared **trijya-3** workstation (RTX 3080 Ti, via Tailscale).
 Its Ollama autostart was disabled on request, so with `OLLAMA_REMOTE_SSH` set the pipeline
-**starts Ollama only for a run and stops it afterwards** (`llm/remote_ollama.py`):
-- starts only if the GPU has >= `OLLAMA_MIN_FREE_VRAM_MB` free, and never in the host's
-  04:00-06:45 IST power-off window (Mon-Sat); lifetime capped so it exits before it
+**starts its own private Ollama only for a run and stops it afterwards**:
+- **isolated:** listens on private port `11436` (not the shared `11434` that the team proxy
+  forwards), reached only through an SSH tunnel this process holds. Other services keep
+  seeing Ollama "off" and can't queue work on our instance. If anything else holds `11436`, we refuse
+- **health-gated start:** GPU < 80 C, no thermal throttling, >= `OLLAMA_MIN_FREE_VRAM_MB` free,
+  CPU load/core, RAM, swap and disk all within limits; never in the 04:00-06:45 IST power-off
+  window (Mon-Sat), and its lifetime is capped to end before it
+- **watched while running** (`llm/host_monitor.py`, logged to `data/host_monitor/`): every 30 s and
+  before every request. >= 82 C pauses our requests until 78 C; >= 87 C, hardware throttling,
+  RAM/swap exhaustion or a lost connection stops our Ollama immediately
 - runs under `timeout`, so it dies on schedule even if this machine crashes
-- tagged `nlp-ollama-serve`; we only ever stop a process still carrying our tag.
-  A server someone else started is used but never stopped
-- bound to 127.0.0.1 on the host, reached through the team's Tailscale proxy (`:11435`)
-- 1 loaded model, 1 parallel request, model unloaded 2 min after the last request
+- tagged `nlp-ollama-serve`; we only ever stop a process still carrying our tag
+- 1 loaded model, 1 parallel request, model unloaded before stopping
 
 ```bash
 .venv/Scripts/python -m pipeline.cli ollama status   # read-only
 .venv/Scripts/python -m pipeline.cli ollama up       # manual start (normally per run)
 .venv/Scripts/python -m pipeline.cli ollama down     # stops only our tagged process
+.venv/Scripts/python -m pipeline.cli host status     # heat / load / memory, read-only
+.venv/Scripts/python -m pipeline.cli host watch --interval 30 --count 10
 ```
-Measured 2026-10-04: start 4 s; `qwen3:14b` 9.6 GB, 100% on GPU; first call ~14 s incl. load.
+Measured 2026-10-04: start 4 s; `qwen3:14b` 9.6 GB, 100% on GPU; isolated JSON round-trip 5.0 s incl.
+load (61 s when the instance was on the shared port and other services queued on it).
 SSH uses classic curve25519 key exchange: the post-quantum default hung on a Tailscale direct path.
 
 ## Key rules baked in

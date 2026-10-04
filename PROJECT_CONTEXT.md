@@ -235,6 +235,24 @@ This file is the durable memory across sessions and for the team. To keep it fre
 
 ## 14. SESSION LOG (append newest at top)
 
+### Session 2026-10-04 (later) — trijya-3 safeguards: isolation + live health monitoring
+- **Found live:** once our Ollama was up on the shared port 11434, other team services queued
+  `qwen2.5:7b-instruct` requests on it through the Tailscale proxy (our call took 61 s and Ollama
+  looked "on" again for everyone). **Fix: isolation** — ours now listens on private port 11436
+  (not proxied) and the pipeline reaches it through its own SSH tunnel (local 11437). The client
+  refuses to send any request to the shared host URL in remote mode. If 11436 is held by
+  anything not ours, we refuse to start.
+- **Host health guard** (`llm/host_monitor.py`): GPU temp/util/power/fan/VRAM/thermal throttling,
+  CPU load per core, RAM, swap, disk. Start refused at >= 80 C or any limit breached. During a run
+  it samples every 30 s (JSONL in `data/host_monitor/`) and gates every request: >= 82 C pauses
+  until 78 C (max 10 min, then Groq fallback), >= 87 C / HW throttling / RAM or swap exhaustion /
+  5 failed reads → stops our Ollama at once. `llm/session.py` `llm_session()` wires it all and
+  always stops on exit. CLI: `host status`, `host watch`.
+- Live-verified: `doctor --deep` all green; JSON round-trip **5.0 s** (vs 61 s shared). The host log
+  shows exactly our 3 requests (version, chat, unload) on `127.0.0.1:11436`; afterwards no process,
+  no PID file, shared port still off, VRAM back to 199 MiB, GPU 42 C. 153 tests pass.
+- Next: Step 1 (ingest).
+
 ### Session 2026-10-04 — Pipeline Step 0 built (branch `feat/pipeline-step0`)
 - Fresh `pipeline/` package per `instruction.md` (separate from Pranav's `src/`): config, LLM client,
   read-only Gmail auth, SQLite probe, `doctor` CLI; empty packages for Steps 1–11. 84 unit tests pass.
