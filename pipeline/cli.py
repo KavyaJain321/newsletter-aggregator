@@ -4,6 +4,9 @@
                     --deep also runs one tiny live JSON completion (starting and then
                     stopping the on-demand remote Ollama if OLLAMA_REMOTE_SSH is set).
   ollama status|up|down   manual control of the on-demand remote Ollama.
+  host status|watch       read-only health of the shared GPU host.
+  ingest --edition tech|finance|all [--since DATE]
+                    Step 1: fetch new newsletter emails (read-only Gmail) into SQLite + .eml archive.
 Exit code 0 when every required check passes, 1 otherwise.
 """
 from __future__ import annotations
@@ -21,7 +24,9 @@ from .llm.client import LLMClient, NoProviderAvailable
 from .llm.host_monitor import Thresholds, assess, describe
 from .llm.remote_ollama import RemoteOllama, RemoteOllamaError
 from .llm.session import llm_session
-from .store.db import check_writable
+from .ingest.gmail import GmailApiError, GmailAuthError
+from .ingest.ingest import format_report, ingest
+from .store.db import check_writable, connect, migrate
 
 
 @dataclass
@@ -173,6 +178,36 @@ def _host_cmd(settings: Settings, action: str, interval: float, count: int) -> i
     return 0 if worst == "ok" else 1
 
 
+def _parse_since(text: str | None):
+    if not text:
+        return None
+    from datetime import datetime, timezone
+    dt = datetime.fromisoformat(text)
+    return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
+
+
+def _ingest_cmd(settings: Settings, edition: str, since: str | None) -> int:
+    reg = load_registry()
+    editions = list(reg.editions) if edition == "all" else [edition]
+    conn = connect(settings.db_path)
+    try:
+        for name in migrate(conn):
+            print(f"applied migration {name}")
+        gmail, worst = GmailClient(settings), 0
+        for ed in editions:
+            try:
+                rep = ingest(settings, reg, ed, gmail, conn, since=_parse_since(since))
+            except (GmailAuthError, GmailApiError) as e:
+                print(f"ingest {ed}: FAILED - {e}")
+                return 1
+            print(format_report(rep, reg))
+            print()
+            worst = max(worst, 0 if rep.status == "ok" else 1)
+        return worst
+    finally:
+        conn.close()
+
+
 def _print(checks: list[Check]) -> int:
     width = max(len(c.name) for c in checks)
     for c in checks:
@@ -195,6 +230,9 @@ def main(argv: list[str] | None = None) -> int:
     host.add_argument("action", choices=["status", "watch"])
     host.add_argument("--interval", type=float, default=30.0, help="seconds between samples (watch)")
     host.add_argument("--count", type=int, default=10, help="number of samples (watch)")
+    ing = sub.add_parser("ingest", help="Step 1: fetch new newsletter emails into SQLite + archive")
+    ing.add_argument("--edition", choices=["tech", "finance", "all"], required=True)
+    ing.add_argument("--since", help="backfill from this ISO date/time (UTC if no offset); only widens the window")
     args = parser.parse_args(argv)
     if hasattr(sys.stdout, "reconfigure"):  # never crash on a non-ASCII detail (Windows consoles)
         sys.stdout.reconfigure(errors="replace")
@@ -202,6 +240,8 @@ def main(argv: list[str] | None = None) -> int:
         return _print(run_checks(load_settings(), deep=args.deep))
     if args.command == "ollama":
         return _ollama_cmd(load_settings(), args.action)
+    if args.command == "ingest":
+        return _ingest_cmd(load_settings(), args.edition, args.since)
     if args.command == "host":
         return _host_cmd(load_settings(), args.action, args.interval, args.count)
     return 2

@@ -1,6 +1,6 @@
 # pipeline/ — newsletter generation pipeline
 
-Built step by step from [`instruction.md`](../instruction.md). **Status: Step 0 (setup & config) done, including isolated on-demand GPU host control and health monitoring.**
+Built step by step from [`instruction.md`](../instruction.md). **Status: Step 0 (setup, config, isolated on-demand GPU host + health monitoring) and Step 1 (ingest) done.**
 
 ## Setup
 ```bash
@@ -15,7 +15,7 @@ cp pipeline/env.example .env                                          # then edi
 **exactly** `gmail.readonly` on the expected account, at least one LLM provider usable, DB and
 output dirs writable.
 
-## What exists (Step 0)
+## What exists (Steps 0-1)
 | Path | What |
 |---|---|
 | `config/sources.yaml` | Every Tech/Finance source: full sender address (+ display-name regex where an address is shared), brand, editions, cadence, paywall mode, disclosures. Addresses verified against the inbox |
@@ -24,14 +24,30 @@ output dirs writable.
 | `config/settings.py` | Machine settings from env / `.env` (keys masked in repr) |
 | `llm/client.py` | One interface: Ollama (native `/api/chat`, `think` + JSON-schema `format`) → Groq (OpenAI-compatible, real User-Agent). Retries, fallback, empty-output guard, JSONL call logs. No silent mock |
 | `llm/json_repair.py` | Recovers JSON from model output (reasoning blocks, fences, prose, trailing commas, truncation) — never invents content |
-| `ingest/gmail.py` | Read-only auth + profile; refuses any token scope beyond `gmail.readonly` |
-| `store/db.py` | SQLite connect + writability probe (schema arrives in Step 4) |
+| `ingest/gmail.py` | Read-only Gmail: auth, list (all pages, spam/trash included), raw fetch. Refuses any scope beyond `gmail.readonly`; retries 429/5xx and rate-limit 403s |
+| `ingest/ingest.py` | Step 1: watermark window, sender matching, alias-copy dedupe, atomic `.eml` archive, per-source report |
+| `store/db.py` | SQLite connect, numbered migrations (`store/migrations/NNN_*.sql`), writability probe |
+| `store/archive.py` | `data/archive/<date ET>/<source_id>/<msg_id>.eml`, byte-exact, atomic write, sha256 |
 | `llm/remote_ollama.py` | On-demand Ollama on the shared GPU host over SSH: guarded start, tagged process, stops only its own |
 | `llm/host_monitor.py` | Shared-host health: GPU heat/util/power/fan/VRAM/throttling, CPU load, RAM, swap, disk. Start gate, background watch, per-request gate |
 | `llm/session.py` | `llm_session()`: the one way a run gets an LLM client - start, monitor, tunnel, always stop |
-| `cli.py` | `doctor [--deep]`, `ollama status|up|down`, `host status|watch` |
+| `cli.py` | `doctor [--deep]`, `ollama status|up|down`, `host status|watch`, `ingest` |
 
 Other packages are empty placeholders named for the step that fills them.
+
+## Ingest (Step 1)
+```bash
+.venv/Scripts/python -m pipeline.cli ingest --edition all                     # since the last OK run
+.venv/Scripts/python -m pipeline.cli ingest --edition finance --since 2026-09-24   # backfill (only widens)
+```
+- Query: `from:(<every edition sender>) after:<window start>`, spam + trash included (flagged).
+- Exactly once: stored ids are never fetched again. TLDR's per-alias copies (distinct
+  Message-IDs, up to ~20 min apart) collapse to one row, and the extras are recorded in `email_duplicates`.
+- Mail from a registered address that no matcher accepts (e.g. Bloomberg "You've subscribed!")
+  goes to `ingest_skips` and is listed in the report.
+- Any per-message error makes the run `partial`. The next run then re-covers that whole window,
+  even a `--since` backfill, so nothing is skipped.
+- Exit code 0 only if every edition finished `ok`.
 
 ## On-demand GPU host (trijya-3)
 The team's `qwen3:14b` runs on the shared **trijya-3** workstation (RTX 3080 Ti, via Tailscale).

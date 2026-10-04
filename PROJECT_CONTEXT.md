@@ -235,6 +235,31 @@ This file is the durable memory across sessions and for the team. To keep it fre
 
 ## 14. SESSION LOG (append newest at top)
 
+### Session 2026-10-04 (evening) — Pipeline Step 1: Ingest built and backfilled
+- `pipeline.cli ingest --edition tech|finance|all [--since]`: read-only Gmail → SQLite (migration
+  `001_ingest`: ingest_runs, emails, email_duplicates, ingest_skips) + byte-exact `.eml` archive at
+  `data/archive/<date ET>/<source>/<msg_id>.eml` (keyed by source: Semafor Business serves both editions).
+- **Dedupe finding:** TLDR's 3 alias deliveries have *different* Message-IDs, up to 17 min apart, so the
+  rule is Message-ID **or** same source + same subject within 3 h + size within 10%.
+- **Two live bugs found and fixed:**
+  - Gmail per-user rate limits come back as HTTP **403** `userRateLimitExceeded`. These are now
+    retried with backoff.
+  - A partial `--since` backfill followed by a plain run would have skipped the failed messages.
+    The window now always covers any unfinished run since the last OK one.
+- Backfill Sep 24 – Oct 4 covered 156 issues (Tech 94, including 4 Semafor Business that also serve
+  Finance; Finance 62 more) and collapsed 14 TLDR copies. Checks passed:
+  - all 142 registered-sender messages in the independent inbox snapshot are accounted for;
+  - every row has its file and its sha256 matches;
+  - a re-run inserts 0 and fetches 0.
+  184 tests pass.
+- **Inbox findings:**
+  - 2 Bytes issues landed in **Spam**. Mark them "Not spam" or add a filter.
+  - `axios_pro_rata` has still sent nothing, so its address remains unverified.
+  - Bloomberg "You've subscribed!" mails are skipped (not issues).
+  - Not registered, by choice: `crew@community.morningbrew.com` (event mail), Sherwood
+    "Scoreboard", Daily Upside "Retirement Upside".
+- Next: Step 2 (classify email kind: issue / welcome / promo / engagement check …).
+
 ### Session 2026-10-04 (later) — trijya-3 safeguards: isolation + live health monitoring
 - **Found live:** once our Ollama was up on the shared port 11434, other team services queued
   `qwen2.5:7b-instruct` requests on it through the Tailscale proxy (our call took 61 s and Ollama

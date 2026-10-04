@@ -173,12 +173,22 @@ Phase 2 extends it with `approved → scheduled → sent`.
   - Build a Gmail query from the sender list plus `after:`.
   - Fetch with `messages.get(format=raw)` and save the `.eml`.
   - Upsert `emails` by `msg_id`.
-  - **Collapse alias duplicates.** TLDR arrives three times via `+tags`; dedupe on the RFC
-    `Message-ID` header, or on sender + subject + date.
+  - **Collapse alias duplicates.** TLDR arrives three times via `+tags`, and each copy has its
+    **own** `Message-ID`, up to ~20 min apart (seen 2026-10-01/02). So a copy is a duplicate if it
+    has the same `Message-ID`, **or** the same source + identical subject within 3 h and a size
+    within 10%.
   - Skip drafts and API errors (log them and continue).
 - **Output:** new `emails` rows with `kind = unknown`, and `.eml` files under
-  `data/archive/<edition>/<date>/`.
+  `data/archive/<date ET>/<source_id>/<msg_id>.eml`. The archive is keyed by source, not edition,
+  because one email can serve both editions (Semafor Business).
 - **Acceptance:** re-running the same window inserts 0 rows, and per-source counts are logged.
+- **Status: done.** `python -m pipeline.cli ingest --edition tech|finance|all [--since DATE]`.
+  - Window: from the last OK run (minus 10 min overlap), and never later than the start of any
+    unfinished (partial, failed or crashed) run since then.
+  - Spam and Trash are included and flagged. Gmail's rate-limit 403s are retried.
+  - Live backfill of Sep 24 – Oct 4: 156 issues and 14 TLDR alias copies collapsed. All 142
+    registered-sender messages in the independent inbox snapshot are accounted for, and
+    re-running inserts 0 and fetches 0.
 
 ### Step 2: Classify the email type
 - **Goal:** separate real issues from everything else.
