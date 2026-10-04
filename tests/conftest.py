@@ -58,6 +58,8 @@ class FakeSession:
 def settings(tmp_path: Path) -> Settings:
     env = {
         "PIPELINE_DATA_DIR": str(tmp_path / "data"),
+        # Offline test double of the shared Supabase Postgres (see pipeline/store/db.py).
+        "DATABASE_URL": f"sqlite:///{(tmp_path / 'data' / 'test.db').as_posix()}",
         "PIPELINE_OUT_DIR": str(tmp_path / "out"),
         "FIXTURES_DIR": str(tmp_path / "fixtures"),
         "GMAIL_TOKEN_PATH": str(tmp_path / "token.json"),

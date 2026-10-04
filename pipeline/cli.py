@@ -6,7 +6,9 @@
   ollama status|up|down   manual control of the on-demand remote Ollama.
   host status|watch       read-only health of the shared GPU host.
   ingest --edition tech|finance|all [--since DATE]
-                    Step 1: fetch new newsletter emails (read-only Gmail) into SQLite + .eml archive.
+                    Step 1: fetch new newsletter emails (read-only Gmail) into the shared database.
+  db status|migrate   row counts / apply schema migrations (Supabase Postgres, DATABASE_URL).
+  export-eml MSG_ID [--out FILE]   save a stored original email as a .eml file.
 Exit code 0 when every required check passes, 1 otherwise.
 """
 from __future__ import annotations
@@ -25,8 +27,8 @@ from .llm.host_monitor import Thresholds, assess, describe
 from .llm.remote_ollama import RemoteOllama, RemoteOllamaError
 from .llm.session import llm_session
 from .ingest.gmail import GmailApiError, GmailAuthError
-from .ingest.ingest import format_report, ingest
-from .store.db import check_writable, connect, migrate
+from .ingest.ingest import format_report, ingest, load_raw
+from .store.db import DbError, check_db, migrate, open_db, schema_version
 
 
 @dataclass
@@ -107,10 +109,9 @@ def run_checks(settings: Settings, deep: bool = False, gmail: GmailClient | None
             checks.append(Check("host health", "WARN", str(e), required=False))
 
     # 4. Storage
-    ok, detail = check_writable(settings.db_path)
+    ok, detail = check_db(settings.database_url)
     checks.append(Check("database", "OK" if ok else "FAIL", detail))
-    for name, path in (("out dir", settings.out_dir), ("llm log dir", settings.llm_log_dir),
-                       ("archive dir", settings.archive_dir)):
+    for name, path in (("out dir", settings.out_dir), ("llm log dir", settings.llm_log_dir)):
         ok, detail = _dir_writable(path)
         checks.append(Check(name, "OK" if ok else "FAIL", detail))
     fx = settings.fixtures_dir
@@ -189,23 +190,57 @@ def _parse_since(text: str | None):
 def _ingest_cmd(settings: Settings, edition: str, since: str | None) -> int:
     reg = load_registry()
     editions = list(reg.editions) if edition == "all" else [edition]
-    conn = connect(settings.db_path)
     try:
-        for name in migrate(conn):
-            print(f"applied migration {name}")
-        gmail, worst = GmailClient(settings), 0
-        for ed in editions:
-            try:
-                rep = ingest(settings, reg, ed, gmail, conn, since=_parse_since(since))
-            except (GmailAuthError, GmailApiError) as e:
-                print(f"ingest {ed}: FAILED - {e}")
-                return 1
-            print(format_report(rep, reg))
-            print()
-            worst = max(worst, 0 if rep.status == "ok" else 1)
-        return worst
-    finally:
-        conn.close()
+        with open_db(settings.database_url) as db:
+            for name in migrate(db):
+                print(f"applied migration {name}")
+            gmail, worst = GmailClient(settings), 0
+            for ed in editions:
+                try:
+                    rep = ingest(settings, reg, ed, gmail, db, since=_parse_since(since))
+                except (GmailAuthError, GmailApiError) as e:
+                    print(f"ingest {ed}: FAILED - {e}")
+                    return 1
+                print(format_report(rep, reg))
+                print()
+                worst = max(worst, 0 if rep.status == "ok" else 1)
+            return worst
+    except DbError as e:
+        print(f"ERROR: database: {e}")
+        return 1
+
+
+def _db_cmd(settings: Settings, action: str) -> int:
+    try:
+        with open_db(settings.database_url) as db:
+            if action == "migrate":
+                applied = migrate(db)
+                print("\n".join(f"applied migration {n}" for n in applied) or "schema already up to date")
+            print(f"{db.label} | schema v{schema_version(db)}")
+            if schema_version(db):
+                for t in ("sources", "documents", "document_raw", "duplicates", "ingest_skips", "ingest_runs", "blocks",
+                          "links", "media", "items", "item_facts", "entities", "topics", "stories"):
+                    print(f"  {t:<17} {db.scalar(f'SELECT COUNT(*) AS n FROM {t}')}")
+    except DbError as e:
+        print(f"ERROR: {e}")
+        return 1
+    return 0
+
+
+def _export_eml(settings: Settings, msg_id: str, out: str | None) -> int:
+    try:
+        with open_db(settings.database_url) as db:
+            raw = load_raw(db, msg_id)
+    except KeyError:
+        print(f"no stored email with id {msg_id}")
+        return 1
+    except (DbError, ValueError) as e:
+        print(f"ERROR: {e}")
+        return 1
+    path = Path(out or f"{msg_id}.eml")
+    path.write_bytes(raw)
+    print(f"wrote {path} ({len(raw):,} bytes, sha256 verified)")
+    return 0
 
 
 def _print(checks: list[Check]) -> int:
@@ -230,9 +265,14 @@ def main(argv: list[str] | None = None) -> int:
     host.add_argument("action", choices=["status", "watch"])
     host.add_argument("--interval", type=float, default=30.0, help="seconds between samples (watch)")
     host.add_argument("--count", type=int, default=10, help="number of samples (watch)")
-    ing = sub.add_parser("ingest", help="Step 1: fetch new newsletter emails into SQLite + archive")
+    ing = sub.add_parser("ingest", help="Step 1: fetch new newsletter emails into the shared database")
     ing.add_argument("--edition", choices=["tech", "finance", "all"], required=True)
     ing.add_argument("--since", help="backfill from this ISO date/time (UTC if no offset); only widens the window")
+    dbp = sub.add_parser("db", help="shared database: status (row counts) or migrate (apply schema)")
+    dbp.add_argument("action", choices=["status", "migrate"])
+    exp = sub.add_parser("export-eml", help="save a stored original email as a .eml file")
+    exp.add_argument("msg_id")
+    exp.add_argument("--out", help="output path (default: <msg_id>.eml)")
     args = parser.parse_args(argv)
     if hasattr(sys.stdout, "reconfigure"):  # never crash on a non-ASCII detail (Windows consoles)
         sys.stdout.reconfigure(errors="replace")
@@ -242,6 +282,10 @@ def main(argv: list[str] | None = None) -> int:
         return _ollama_cmd(load_settings(), args.action)
     if args.command == "ingest":
         return _ingest_cmd(load_settings(), args.edition, args.since)
+    if args.command == "db":
+        return _db_cmd(load_settings(), args.action)
+    if args.command == "export-eml":
+        return _export_eml(load_settings(), args.msg_id, args.out)
     if args.command == "host":
         return _host_cmd(load_settings(), args.action, args.interval, args.count)
     return 2

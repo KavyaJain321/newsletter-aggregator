@@ -107,7 +107,15 @@ Phase 3 adds `feedparser`.
 
 ---
 
-## 3. Data model (SQLite, `store/schema.sql`)
+## 3. Data model (Supabase Postgres, `pipeline/store/migrations/postgres/001_content_store.sql`)
+
+> **Superseded by the built schema (2026-10-04).** The live data model is the four-layer content
+> store: raw (`sources`, `documents`, `document_raw`), structure (`blocks`, `links`, `media`),
+> meaning (`items`, `item_facts`, `item_quotes`, `entities`, `item_embeddings`) and topics
+> (`topics`, `item_topics`, `stories`, `story_items`). See `pipeline/README.md`. Mapping from the
+> original plan: `emails` -> `documents`, `sections` -> `blocks`, `cards` -> `items`,
+> `facts` -> `item_facts`, `modules` -> `items` with an `item_type`, `clusters` -> `stories`.
+> `runs` and `issues` (Steps 7-11) are added by later migrations. The table below is the original plan.
 
 | Table | Key columns | Purpose |
 |---|---|---|
@@ -178,9 +186,9 @@ Phase 2 extends it with `approved → scheduled → sent`.
     has the same `Message-ID`, **or** the same source + identical subject within 3 h and a size
     within 10%.
   - Skip drafts and API errors (log them and continue).
-- **Output:** new `emails` rows with `kind = unknown`, and `.eml` files under
-  `data/archive/<date ET>/<source_id>/<msg_id>.eml`. The archive is keyed by source, not edition,
-  because one email can serve both editions (Semafor Business).
+- **Output:** new `documents` rows (`channel = email`, `kind = unknown`) in the shared Supabase
+  database, each with its byte-exact original (gzip) in `document_raw`, written in one transaction.
+  Nothing is stored locally.
 - **Acceptance:** re-running the same window inserts 0 rows, and per-source counts are logged.
 - **Status: done.** `python -m pipeline.cli ingest --edition tech|finance|all [--since DATE]`.
   - Window: from the last OK run (minus 10 min overlap), and never later than the start of any

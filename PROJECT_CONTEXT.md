@@ -235,6 +235,36 @@ This file is the durable memory across sessions and for the team. To keep it fre
 
 ## 14. SESSION LOG (append newest at top)
 
+### Session 2026-10-04 (night) — Storage moved to Supabase: the four-layer content store
+- Owner decision: **no local database**. Everything goes to one Supabase Postgres project (Mumbai,
+  owner's account) so every teammate works on the same data.
+- Owner asked for a store that breaks every newsletter into its news items, headings,
+  sub-headings, text, images, quotes and numbers, so topics can be split across sources and
+  Pranav's outside-data pipelines fit later. The built design has four layers, each
+  rebuildable from the one below:
+  - **raw:** `sources`, `documents` (any channel: email/rss/web/api), `document_raw` (gzip original);
+  - **structure:** `blocks`, `links`, `media`;
+  - **meaning:** `items`, `item_facts` with evidence sentences, `item_quotes`, `entities`,
+    `item_embeddings` on pgvector;
+  - **topics:** `topics` tree, `item_topics`, `stories` across sources.
+- **Pranav compatibility:** his branch `origin/feat/pipeline-mvp` is Gmail-only with
+  `story_cards`. A `story_cards` view serves our `items` in his exact shape.
+- **Security:** RLS is on for all 20 tables with no policies, and the view is `security_invoker`.
+  A test confirms the anon and authenticated roles read nothing even with Supabase's default grants.
+- **Code:** `store/db.py` is one portable SQL layer (Postgres in production, SQLite as the
+  offline test double with a schema-parity test). It adds a team-wide advisory lock for ingest
+  and scrubs passwords from all errors. A raw dashboard password in `DATABASE_URL` is
+  auto-encoded (an unencoded '@' had broken parsing and leaked part of the password into an
+  error; both are fixed).
+- **Live:** migrated the schema and loaded Sep 24 – Oct 4: 156 documents (94 Tech, 62 Finance),
+  14 TLDR copies collapsed, 156/156 originals sha256-verified, re-run adds 0. Storage is
+  5.2 MB (about 0.5 MB/day). Tests: 199 unit, plus 6 integration tests against real Supabase
+  in throwaway schemas.
+- **Open:**
+  - The Supabase password was pasted in chat, so the owner should reset it.
+  - The old local `data/pipeline.db` and `data/archive/` are superseded and can be deleted.
+- **Next:** Step 2 (classify), then Step 3 (fill the structure layer).
+
 ### Session 2026-10-04 (evening) — Pipeline Step 1: Ingest built and backfilled
 - `pipeline.cli ingest --edition tech|finance|all [--since]`: read-only Gmail → SQLite (migration
   `001_ingest`: ingest_runs, emails, email_duplicates, ingest_skips) + byte-exact `.eml` archive at

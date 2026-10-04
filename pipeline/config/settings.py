@@ -37,6 +37,29 @@ def _read_dotenv(path: Path) -> dict[str, str]:
     return values
 
 
+def split_db_url(url: str) -> tuple[str, str, str | None, str] | None:
+    """postgresql://user:pass@host/db -> ("postgresql://", "user", "pass", "host/db").
+    The password ends at the LAST '@', so an unencoded '@' inside it is still treated as secret."""
+    scheme_end = url.find("://")
+    at = url.rfind("@")
+    if scheme_end < 0 or at < scheme_end:
+        return None
+    userinfo = url[scheme_end + 3:at]
+    user, sep, password = userinfo.partition(":")
+    return url[:scheme_end + 3], user, (password if sep else None), url[at + 1:]
+
+
+def mask_db_url(url: str | None) -> str:
+    """postgresql://user:SECRET@host:5432/db -> postgresql://user:***@host:5432/db"""
+    if not url:
+        return "unset"
+    parts = split_db_url(url)
+    if not parts or parts[2] is None:
+        return url
+    scheme, user, _, rest = parts
+    return f"{scheme}{user}:***@{rest}"
+
+
 def _path(value: str, base: Path = REPO_ROOT) -> Path:
     p = Path(os.path.expanduser(value))
     return (p if p.is_absolute() else (base / p)).resolve()
@@ -45,8 +68,9 @@ def _path(value: str, base: Path = REPO_ROOT) -> Path:
 @dataclass(frozen=True)
 class Settings:
     data_dir: Path
-    db_path: Path
-    archive_dir: Path
+    # Shared Postgres (Supabase) - the pipeline's ONLY database. Contains a password: never printed.
+    # `sqlite:///<path>` is accepted solely for offline unit tests.
+    database_url: str | None = field(repr=False)
     out_dir: Path
     llm_log_dir: Path
     fixtures_dir: Path
@@ -89,7 +113,7 @@ class Settings:
 
     def __repr__(self) -> str:  # never leak the key
         key = "set" if self.groq_api_key else "unset"
-        return f"Settings(db={self.db_path}, ollama={self.ollama_base_url}:{self.ollama_model}, groq={self.groq_model}[key {key}])"
+        return f"Settings(db={mask_db_url(self.database_url)}, ollama={self.ollama_base_url}:{self.ollama_model}, groq={self.groq_model}[key {key}])"
 
 
 def load_settings(env: dict[str, str] | None = None, dotenv_path: Path | None = None) -> Settings:
@@ -101,8 +125,7 @@ def load_settings(env: dict[str, str] | None = None, dotenv_path: Path | None = 
     data_dir = _path(g("PIPELINE_DATA_DIR", "data"))
     return Settings(
         data_dir=data_dir,
-        db_path=_path(g("PIPELINE_DB_PATH", str(data_dir / "pipeline.db"))),
-        archive_dir=_path(g("PIPELINE_ARCHIVE_DIR", str(data_dir / "archive"))),
+        database_url=(g("DATABASE_URL") or "").strip() or None,
         out_dir=_path(g("PIPELINE_OUT_DIR", "out")),
         llm_log_dir=_path(g("PIPELINE_LLM_LOG_DIR", str(data_dir / "llm_logs"))),
         fixtures_dir=_path(g("FIXTURES_DIR", "../newsletter-aggregator-fixtures")),

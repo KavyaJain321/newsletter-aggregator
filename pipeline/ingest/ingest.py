@@ -1,6 +1,12 @@
 """Step 1: Ingest. Fetch every new email for an edition's sources, losslessly and exactly once.
 
-    report = ingest(settings, registry, "tech", gmail, conn)
+    with open_db(settings.database_url) as db:
+        report = ingest(settings, registry, "tech", gmail, db)
+
+Storage: the shared Supabase Postgres (layer 1 of the content store, see
+store/migrations/postgres/001_content_store.sql). Each email is one `documents` row
+(channel 'email') plus its byte-exact original (gzip) in `document_raw`, written in ONE
+transaction. Nothing is stored locally.
 
 Window: from the edition's last successful ingest (minus a 10-minute overlap for Gmail's
 indexing delay) to now. First run: `first_run_hours` back. On weekly-lookback days (Tech on
@@ -16,22 +22,25 @@ Exactly once:
     3 h and a size within 10%.
 A run with any per-message error is `partial`: its rows are kept, but the watermark does not
 advance, so the next run covers the window again (idempotently) and retries the failures.
+Only one ingest runs at a time across the whole team (database advisory lock).
 """
 from __future__ import annotations
 
 import json
 import re
-import sqlite3
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timedelta, timezone
 from email import policy
 from email.message import Message
 from email.parser import BytesHeaderParser
+from email.utils import parseaddr, parsedate_to_datetime
 from zoneinfo import ZoneInfo
 
 from ..config.registry import Registry
 from ..config.settings import Settings
-from ..store.archive import eml_relpath, write_eml
+from ..store.catalog import sync_sources
+from ..store.db import Db, DbError
+from ..store.raw import pack, sha256
 from .gmail import GmailApiError, GmailClient, RawMessage
 
 OVERLAP = timedelta(minutes=10)
@@ -48,29 +57,34 @@ def parse_iso(text: str) -> datetime:
     return datetime.strptime(text, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
 
 
+def _now() -> str:
+    return iso(datetime.now(timezone.utc))
+
+
 # ------------------------------------------------------------------ window
-def last_ok_window_end(conn: sqlite3.Connection, edition: str) -> datetime | None:
-    row = conn.execute("SELECT MAX(window_end) FROM ingest_runs WHERE edition = ? AND status = 'ok'",
-                       (edition,)).fetchone()
-    return parse_iso(row[0]) if row and row[0] else None
+def last_ok_window_end(db: Db, edition: str) -> datetime | None:
+    v = db.scalar("SELECT MAX(window_end) AS v FROM ingest_runs WHERE channel = 'email' AND scope = ? "
+                  "AND status = 'ok'", (edition,))
+    return parse_iso(v) if v else None
 
 
-def unfinished_window_start(conn: sqlite3.Connection, edition: str) -> datetime | None:
+def unfinished_window_start(db: Db, edition: str) -> datetime | None:
     """Earliest window_start of any run after the last OK one that did not finish OK
     (partial, failed, or 'running' after a crash). The next window must cover it."""
-    row = conn.execute(
-        "SELECT MIN(window_start) FROM ingest_runs WHERE edition = ? AND status != 'ok' AND id > "
-        "COALESCE((SELECT MAX(id) FROM ingest_runs WHERE edition = ? AND status = 'ok'), 0)",
-        (edition, edition)).fetchone()
-    return parse_iso(row[0]) if row and row[0] else None
+    v = db.scalar(
+        "SELECT MIN(window_start) AS v FROM ingest_runs WHERE channel = 'email' AND scope = ? "
+        "AND status != 'ok' AND id > COALESCE((SELECT MAX(id) FROM ingest_runs WHERE channel = 'email' "
+        "AND scope = ? AND status = 'ok'), 0)",
+        (edition, edition))
+    return parse_iso(v) if v else None
 
 
-def ingest_window(reg: Registry, edition: str, conn: sqlite3.Connection, now: datetime,
+def ingest_window(reg: Registry, edition: str, db: Db, now: datetime,
                   since: datetime | None = None) -> tuple[datetime, datetime]:
     w = reg.editions[edition].window
-    last = last_ok_window_end(conn, edition)
+    last = last_ok_window_end(db, edition)
     start = last - OVERLAP if last else now - timedelta(hours=w.first_run_hours)
-    pending = unfinished_window_start(conn, edition)
+    pending = unfinished_window_start(db, edition)
     if pending is not None:
         start = min(start, pending)  # never leave the window of an unfinished run uncovered
     local_day = _WEEKDAYS[now.astimezone(ZoneInfo(reg.timezone)).weekday()]
@@ -108,6 +122,7 @@ class IngestReport:
     known: int = 0
     new: int = 0
     duplicates: int = 0
+    stored_bytes: int = 0                                  # compressed raw bytes written
     per_source: dict[str, SourceCount] = field(default_factory=dict)
     silent_sources: list[str] = field(default_factory=list)
     spam: list[str] = field(default_factory=list)          # "source: subject"
@@ -120,8 +135,7 @@ class IngestReport:
         return self.per_source.setdefault(source_id, SourceCount())
 
     def to_json(self) -> str:
-        d = asdict(self)
-        return json.dumps(d, ensure_ascii=False, sort_keys=True)
+        return json.dumps(asdict(self), ensure_ascii=False, sort_keys=True)
 
 
 # ------------------------------------------------------------------ headers
@@ -152,151 +166,177 @@ def parse_headers(raw: bytes) -> Headers:
 
 
 # ------------------------------------------------------------------ dedupe
-def find_duplicate(conn: sqlite3.Connection, source_id: str, h: Headers, received: datetime,
+def find_duplicate(db: Db, source_id: str, h: Headers, received: datetime,
                    size: int) -> tuple[str, str] | None:
     """(canonical msg_id, reason) if this is another copy of a stored email, else None."""
     if h.message_id:
-        row = conn.execute("SELECT msg_id FROM emails WHERE rfc_message_id = ? LIMIT 1",
-                           (h.message_id,)).fetchone()
-        if row:
-            return row[0], "message-id"
+        v = db.scalar("SELECT id FROM documents WHERE rfc_message_id = ? LIMIT 1", (h.message_id,))
+        if v:
+            return v, "message-id"
     if not h.subject:
         return None  # never collapse on an empty subject
-    rows = conn.execute(
-        "SELECT msg_id, size_bytes FROM emails WHERE source_id = ? AND subject = ? "
+    rows = db.all(
+        "SELECT id, size_bytes FROM documents WHERE source_id = ? AND title = ? "
         "AND received_at BETWEEN ? AND ? ORDER BY received_at",
-        (source_id, h.subject, iso(received - DUP_WINDOW), iso(received + DUP_WINDOW))).fetchall()
-    for msg_id, other in rows:
-        if abs(size - other) <= DUP_SIZE_TOLERANCE * max(size, other, 1):
-            return msg_id, "alias-copy"
+        (source_id, h.subject, iso(received - DUP_WINDOW), iso(received + DUP_WINDOW)))
+    for r in rows:
+        if abs(size - r["size_bytes"]) <= DUP_SIZE_TOLERANCE * max(size, r["size_bytes"], 1):
+            return r["id"], "alias-copy"
     return None
 
 
 # ------------------------------------------------------------------ ingest
-def _known_ids(conn: sqlite3.Connection) -> set[str]:
-    rows = conn.execute("SELECT msg_id FROM emails UNION SELECT msg_id FROM email_duplicates").fetchall()
-    return {r[0] for r in rows}
+def _known(db: Db) -> dict[str, str]:
+    """Every stored Gmail id (documents + duplicates) -> its source_id."""
+    rows = db.all("SELECT external_id AS gid, source_id FROM documents WHERE channel = 'email' UNION ALL "
+                  "SELECT u.external_id, d.source_id FROM duplicates u "
+                  "JOIN documents d ON d.id = u.canonical_document_id WHERE u.channel = 'email'")
+    return {r["gid"]: r["source_id"] for r in rows}
 
 
-def ingest(settings: Settings, reg: Registry, edition: str, gmail: GmailClient, conn: sqlite3.Connection,
+def ingest(settings: Settings, reg: Registry, edition: str, gmail: GmailClient, db: Db,
            now: datetime | None = None, since: datetime | None = None) -> IngestReport:
     if edition not in reg.editions:
         raise ValueError(f"unknown edition {edition!r}")
-    now = now or datetime.now(timezone.utc)
-    start, end = ingest_window(reg, edition, conn, now, since)
-    query = build_query(reg, edition, start)
-    rep = IngestReport(edition=edition, window_start=iso(start), window_end=iso(end), query=query)
-    cur = conn.execute("INSERT INTO ingest_runs (edition, window_start, window_end, query, status, started_at) "
-                       "VALUES (?, ?, ?, ?, 'running', ?)", (edition, rep.window_start, rep.window_end, query, iso(now)))
-    rep.run_id = cur.lastrowid
-    try:
-        _run(settings, reg, gmail, conn, rep)
-        rep.status = "partial" if rep.errors else "ok"
-    except BaseException as e:
-        rep.status = "failed"
-        rep.errors.append(f"run: {e.__class__.__name__}: {e}")
-        raise
-    finally:
-        edition_sources = [s.id for s in reg.sources_for(edition)]
-        rep.silent_sources = [sid for sid in edition_sources if rep.count(sid).listed == 0]
-        rep.per_source = {k: rep.per_source[k] for k in sorted(rep.per_source)}
-        conn.execute("UPDATE ingest_runs SET status = ?, finished_at = ?, stats = ? WHERE id = ?",
-                     (rep.status, iso(datetime.now(timezone.utc)), rep.to_json(), rep.run_id))
+    with db.exclusive("pipeline:ingest"):  # one ingest at a time across the whole team
+        sync_sources(db, reg)
+        now = now or datetime.now(timezone.utc)
+        start, end = ingest_window(reg, edition, db, now, since)
+        query = build_query(reg, edition, start)
+        rep = IngestReport(edition=edition, window_start=iso(start), window_end=iso(end), query=query)
+        rep.run_id = db.scalar(
+            "INSERT INTO ingest_runs (channel, scope, window_start, window_end, query, status, started_at) "
+            "VALUES ('email', ?, ?, ?, ?, 'running', ?) RETURNING id",
+            (edition, rep.window_start, rep.window_end, query, iso(now)))
+        try:
+            _run(reg, gmail, db, rep)
+            rep.status = "partial" if rep.errors else "ok"
+        except BaseException as e:
+            rep.status = "failed"
+            rep.errors.append(f"run: {e.__class__.__name__}: {e}")
+            raise
+        finally:
+            rep.silent_sources = [s.id for s in reg.sources_for(edition) if rep.count(s.id).listed == 0]
+            rep.per_source = {k: rep.per_source[k] for k in sorted(rep.per_source)}
+            db.execute("UPDATE ingest_runs SET status = ?, finished_at = ?, stats = ? WHERE id = ?",
+                       (rep.status, _now(), rep.to_json(), rep.run_id))
     return rep
 
 
-def _run(settings: Settings, reg: Registry, gmail: GmailClient, conn: sqlite3.Connection,
-         rep: IngestReport) -> None:
+def _run(reg: Registry, gmail: GmailClient, db: Db, rep: IngestReport) -> None:
     tz = ZoneInfo(reg.timezone)
-    known = _known_ids(conn)
+    known = _known(db)
     ids = list(gmail.list_ids(rep.query))
     rep.listed = len(ids)
     for msg_id in reversed(ids):  # Gmail lists newest first: oldest copy becomes canonical
         if msg_id in known:
             rep.known += 1
-            src = conn.execute("SELECT source_id FROM emails WHERE msg_id = ? UNION ALL "
-                               "SELECT e.source_id FROM email_duplicates d JOIN emails e "
-                               "ON e.msg_id = d.canonical_msg_id WHERE d.msg_id = ?", (msg_id, msg_id)).fetchone()
-            if src:
-                c = rep.count(src[0])
-                c.listed += 1
-                c.known += 1
+            c = rep.count(known[msg_id])
+            c.listed += 1
+            c.known += 1
             continue
         try:
             msg = gmail.get_raw(msg_id)
-            _ingest_one(settings, reg, conn, rep, msg, tz)
-        except (GmailApiError, OSError, sqlite3.Error, ValueError) as e:
+            source_id = _ingest_one(reg, db, rep, msg, tz)
+        except (GmailApiError, DbError, OSError, ValueError) as e:
             rep.errors.append(f"{msg_id}: {e.__class__.__name__}: {str(e)[:200]}")
             continue
-        known.add(msg_id)
+        if source_id:
+            known[msg_id] = source_id
 
 
-def _ingest_one(settings: Settings, reg: Registry, conn: sqlite3.Connection, rep: IngestReport,
-                msg: RawMessage, tz: ZoneInfo) -> None:
+def _ingest_one(reg: Registry, db: Db, rep: IngestReport, msg: RawMessage, tz: ZoneInfo) -> str | None:
+    """Store one fetched message. Returns its source_id if stored or collapsed, else None."""
     if "DRAFT" in msg.label_ids:
         rep.drafts += 1
-        return
+        return None
     h = parse_headers(msg.raw)
     received = datetime.fromtimestamp(msg.internal_date_ms / 1000, tz=timezone.utc)
     hit = reg.match_sender(h.from_)  # ValueError if ambiguous: config bug, reported per message
     if hit is None:
         rep.unmatched.append(h.from_)
-        conn.execute(
-            "INSERT INTO ingest_skips (msg_id, reason, from_header, subject, received_at, last_seen_run_id) "
-            "VALUES (?, 'unmatched', ?, ?, ?, ?) ON CONFLICT (msg_id) DO UPDATE SET "
-            "last_seen_run_id = excluded.last_seen_run_id",
+        db.execute(
+            "INSERT INTO ingest_skips (channel, external_id, reason, from_header, title, received_at, "
+            "last_seen_run_id) VALUES ('email', ?, 'unmatched', ?, ?, ?, ?) ON CONFLICT (channel, external_id) "
+            "DO UPDATE SET last_seen_run_id = excluded.last_seen_run_id",
             (msg.id, h.from_, h.subject, iso(received), rep.run_id))
-        return
+        return None
     source, matcher = hit
     c = rep.count(source.id)
     c.listed += 1
     in_spam, in_trash = "SPAM" in msg.label_ids, "TRASH" in msg.label_ids
     size = len(msg.raw)
-    dup = find_duplicate(conn, source.id, h, received, size)
+    dup = find_duplicate(db, source.id, h, received, size)
     if dup:
-        conn.execute(
-            "INSERT OR IGNORE INTO email_duplicates (msg_id, canonical_msg_id, reason, to_header, received_at, "
-            "ingest_run_id, ingested_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            (msg.id, dup[0], dup[1], h.to, iso(received), rep.run_id, iso(datetime.now(timezone.utc))))
-        conn.execute("DELETE FROM ingest_skips WHERE msg_id = ?", (msg.id,))
+        with db.transaction():
+            db.execute(
+                "INSERT INTO duplicates (channel, external_id, canonical_document_id, reason, recipient, "
+                "received_at, ingest_run_id, ingested_at) VALUES ('email', ?, ?, ?, ?, ?, ?, ?) "
+                "ON CONFLICT (channel, external_id) DO NOTHING",
+                (msg.id, dup[0], dup[1], h.to, iso(received), rep.run_id, _now()))
+            db.execute("DELETE FROM ingest_skips WHERE channel = 'email' AND external_id = ?", (msg.id,))
         c.duplicate += 1
         rep.duplicates += 1
-        return
+        return source.id
 
-    relpath = eml_relpath(received.astimezone(tz).date(), source.id, msg.id)
-    digest = write_eml(settings.archive_dir, relpath, msg.raw)  # before the row: a row always has its file
-    conn.execute("BEGIN IMMEDIATE")
-    try:
-        cur = conn.execute(
-            "INSERT OR IGNORE INTO emails (msg_id, thread_id, source_id, series, rfc_message_id, from_header, "
-            "to_header, subject, date_header, received_at, label_ids, in_spam, in_trash, size_bytes, sha256, "
-            "eml_path, ingest_run_id, ingested_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            (msg.id, msg.thread_id, source.id, matcher.series, h.message_id or None, h.from_, h.to, h.subject,
-             h.date, iso(received), json.dumps(list(msg.label_ids)), int(in_spam), int(in_trash), size, digest,
-             relpath, rep.run_id, iso(datetime.now(timezone.utc))))
-        conn.execute("DELETE FROM ingest_skips WHERE msg_id = ?", (msg.id,))
-        conn.execute("COMMIT")
-    except BaseException:
-        conn.execute("ROLLBACK")
-        raise
-    if cur.rowcount == 0:  # a concurrent run stored it first
+    blob = pack(msg.raw)
+    with db.transaction():  # the row and its raw copy land together or not at all
+        cur = db.execute(
+            "INSERT INTO documents (id, channel, external_id, source_id, series, title, author, published_at, "
+            "received_at, received_day_et, rfc_message_id, thread_id, from_header, to_header, label_ids, in_spam, "
+            "in_trash, size_bytes, sha256, ingest_run_id, ingested_at) "
+            "VALUES (?, 'email', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO NOTHING",
+            (msg.id, msg.id, source.id, matcher.series, h.subject, parseaddr(h.from_)[0] or None,
+             _date_header(h.date), iso(received), received.astimezone(tz).date().isoformat(),
+             h.message_id or None, msg.thread_id, h.from_, h.to, json.dumps(list(msg.label_ids)),
+             in_spam, in_trash, size, sha256(msg.raw), rep.run_id, _now()))
+        inserted = cur.rowcount == 1
+        if inserted:
+            db.execute("INSERT INTO document_raw (document_id, content_type, encoding, data) "
+                       "VALUES (?, 'message/rfc822', 'gzip', ?)", (msg.id, blob))
+        db.execute("DELETE FROM ingest_skips WHERE channel = 'email' AND external_id = ?", (msg.id,))
+    if not inserted:  # a concurrent run stored it first
         c.known += 1
         rep.known += 1
-        return
+        return source.id
     c.new += 1
     rep.new += 1
+    rep.stored_bytes += len(blob)
     if in_spam:
         c.spam += 1
         rep.spam.append(f"{source.id}: {h.subject[:80]}")
     if in_trash:
         rep.trash.append(f"{source.id}: {h.subject[:80]}")
+    return source.id
+
+
+def load_raw(db: Db, document_id: str) -> bytes:
+    """The byte-exact original, integrity-checked against its stored sha256."""
+    from ..store.raw import unpack
+    row = db.one("SELECT r.data, d.sha256 FROM document_raw r JOIN documents d ON d.id = r.document_id "
+                 "WHERE r.document_id = ?", (document_id,))
+    if row is None:
+        raise KeyError(document_id)
+    return unpack(row["data"], row["sha256"])
+
+
+def _date_header(value: str) -> str | None:
+    """RFC 2822 Date header -> ISO UTC, or None if missing/unparseable (received_at still holds)."""
+    try:
+        dt = parsedate_to_datetime(value) if value else None
+    except (TypeError, ValueError, IndexError):
+        return None
+    if dt is None:
+        return None
+    return iso(dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc))
 
 
 def format_report(rep: IngestReport, reg: Registry) -> str:
     lines = [f"ingest {rep.edition}  run #{rep.run_id}  status={rep.status.upper()}",
              f"window {rep.window_start} -> {rep.window_end}",
              f"listed {rep.listed} | new {rep.new} | duplicates {rep.duplicates} | already stored {rep.known}"
-             + (f" | drafts {rep.drafts}" if rep.drafts else ""), ""]
+             + (f" | drafts {rep.drafts}" if rep.drafts else "")
+             + (f" | {rep.stored_bytes / 1024:.0f} KB stored (gzip)" if rep.stored_bytes else ""), ""]
     width = max([len(s.id) for s in reg.sources] + [6])
     lines.append(f"  {'source':<{width}}  listed  new  dup  known  spam")
     for sid, c in rep.per_source.items():

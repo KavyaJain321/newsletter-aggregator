@@ -2,5 +2,6 @@
 requests>=2.31
 PyYAML>=6.0
 pydantic>=2.7
+psycopg[binary]>=3.2,<4    # shared Supabase Postgres (DATABASE_URL)
 tzdata>=2024.1      # IANA time zones for zoneinfo on Windows
 pytest>=8.0

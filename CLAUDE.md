@@ -24,5 +24,7 @@ Live per-newsletter status is in `data/sources.csv`. Design is in `PHASE4_DESIGN
 ## Where things stand (2026-10-04)
 Building the generation pipeline in `pipeline/` step by step from `instruction.md` (branch
 `feat/pipeline-step0`). Step 0 (config, LLM client, on-demand isolated Ollama on trijya-3 with heat/load
-monitoring) and Step 1 (Gmail ingest → SQLite + .eml archive) are done. Next: Step 2 (classify).
+monitoring) and Step 1 (Gmail ingest) are done. All data lives in the shared **Supabase Postgres**
+four-layer content store (raw → structure → meaning → topics). Set `DATABASE_URL` in `.env`.
+Next: Step 2 (classify), then Step 3 (fill `blocks`/`links`/`media`).
 See `pipeline/README.md` and the Session Log in `PROJECT_CONTEXT.md`.

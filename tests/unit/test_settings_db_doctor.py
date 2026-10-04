@@ -3,7 +3,7 @@ from pathlib import Path
 from pipeline.cli import _print, run_checks
 from pipeline.config.settings import load_settings
 from pipeline.llm.client import LLMClient, MockProvider
-from pipeline.store.db import check_writable, connect
+from pipeline.store.db import check_db, open_db
 
 
 # ---------------------------------------------------------------- settings
@@ -46,23 +46,33 @@ def test_env_example_parses(tmp_path):
 
 def test_relative_paths_resolve_to_repo(tmp_path):
     s = load_settings(env={"PIPELINE_DATA_DIR": "data"}, dotenv_path=tmp_path / "x")
-    assert s.data_dir.is_absolute() and s.db_path.name == "pipeline.db"
+    assert s.data_dir.is_absolute() and s.database_url is None
+
+
+def test_database_url_is_never_shown(tmp_path):
+    url = "postgresql://postgres.abcd:S3cr3t-pw@aws-0-ap-south-1.pooler.supabase.com:5432/postgres"
+    s = load_settings(env={"DATABASE_URL": url}, dotenv_path=tmp_path / "x")
+    assert s.database_url == url and "S3cr3t" not in repr(s) and "postgres.abcd:***@" in repr(s)
 
 
 # --------------------------------------------------------------------- db
-def test_db_writable_leaves_no_trace(tmp_path):
-    db = tmp_path / "d" / "p.db"
-    ok, detail = check_writable(db)
-    assert ok and "SQLite" in detail
-    tables = connect(db).execute("SELECT name FROM sqlite_master").fetchall()
-    assert tables == []
+def test_db_check_leaves_no_trace(tmp_path):
+    url = f"sqlite:///{(tmp_path / 'd' / 'p.db').as_posix()}"
+    ok, detail = check_db(url)
+    assert ok and "SQLite" in detail and "schema v0" in detail
+    with open_db(url) as db:
+        assert db.all("SELECT name FROM sqlite_master") == []
 
 
-def test_db_not_writable(tmp_path):
+def test_db_check_failures(tmp_path):
+    assert check_db(None) == (False, "DATABASE_URL is not set - add the Supabase session-pooler "
+                                     "connection string to .env")
     blocker = tmp_path / "file"
     blocker.write_text("x")
-    ok, _ = check_writable(blocker / "sub" / "p.db")  # parent is a file
+    ok, _ = check_db(f"sqlite:///{(blocker / 'sub' / 'p.db').as_posix()}")  # parent is a file
     assert not ok
+    ok, detail = check_db("mysql://u:pw@h/db")
+    assert not ok and "unsupported" in detail and "pw" not in detail
 
 
 # ----------------------------------------------------------------- doctor
