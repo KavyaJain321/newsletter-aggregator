@@ -80,7 +80,7 @@ failed run restarts from the stage that failed.
 
 ```
 pipeline/
-  config/        sources.yaml  editions.yaml  settings.py        # no secrets; env vars for keys
+  config/        sources.yaml  editions.yaml  settings.py  registry.py   # no secrets; env vars for keys
   ingest/        gmail.py                                         # read-only Gmail client
   classify/      email_kind.py
   clean/         html2md.py  links.py  sponsors.py  paywall.py  structure.py
@@ -111,7 +111,7 @@ Phase 3 adds `feedparser`.
 
 | Table | Key columns | Purpose |
 |---|---|---|
-| `sources` | `id`, `name`, `brand`, `edition`, `sender_match`, `alias_match`, `cadence`, `expected_send_et`, `paywall_mode`, `active` | Map each sender to a newsletter and an edition. Seed it from the research files |
+| `sources` | `id`, `brand`, `editions`, `match` (full address + optional display-name regex + series), `cadence`, `expected_send_et`, `paywall_mode`, `html_only`, `disclosure`, `verified`, `active` | Map each sender to a newsletter, its brand and its editions. Source of truth: `pipeline/config/sources.yaml` (mirrored into SQLite) |
 | `emails` | `msg_id` PK, `source_id`, `received_at`, `subject`, `preheader`, `kind`, `eml_path`, `html_path`, `md_path`, `is_preview`, `paywall_cut_at`, `run_id` | One row per received email |
 | `sections` | `id`, `msg_id`, `seq`, `heading`, `text`, `is_sponsored` | The email split into structural sections |
 | `links` | `id`, `msg_id`, `section_id`, `raw_url`, `canonical_url`, `is_tracking`, `is_paywalled`, `http_status` | Every outbound link |
@@ -146,16 +146,20 @@ Phase 2 extends it with `approved → scheduled → sent`.
     - **Both:** each edition's roster order (this is the order of the coverage strip) and its slot
       template (see Step 7).
 - **LLM client** (`llm/client.py`):
-  - One OpenAI-compatible interface: Ollama at `http://<host>:11434/v1` and Groq at
+  - One client interface over two transports: Ollama's **native** `/api/chat` (it exposes Qwen3's
+    `think` switch and JSON-schema-constrained output via `format`) and Groq's OpenAI-compatible
     `https://api.groq.com/openai/v1`.
-  - JSON mode, timeouts and retries with fallback.
+  - JSON mode, timeouts and retries with fallback. No silent mock fallback: if no provider works,
+    the call fails loudly.
   - Send a real `User-Agent` to Groq (Pranav found a Cloudflare 1010 block without one).
   - Keep Qwen **thinking ON** for extraction (thinking OFF produced empty cards), and add an
     empty-output guard.
   - Log every call locally to a gitignored folder.
 - **CLI:** `python -m pipeline.cli doctor`
-- **Acceptance:** `doctor` reports Gmail OK (read-only scope), Ollama OK, Groq OK, the number of
-  sources loaded per edition, and a writable DB.
+- **Acceptance:** `doctor` exits 0 only when: config validates; the Gmail token refreshes with
+  **exactly** `gmail.readonly` on the expected account; **at least one** LLM provider is usable (each
+  provider's state is shown); the DB and output dirs are writable. `doctor --deep` also runs one live
+  JSON completion. **Status: done** (see `pipeline/README.md`).
 
 ### Step 1: Ingest
 - **Goal:** fetch every new email for an edition's sources, losslessly and exactly once.
@@ -282,11 +286,12 @@ Phase 2 extends it with `approved → scheduled → sent`.
      no, with a reason).
   3. **Keep every member.** Unlike the borrowed dedup, never keep only the "best" card.
 - **6b. Coverage** (`coverage.py`):
-  - `coverage_n` = number of distinct roster newsletters in the cluster;
-  - `roster_n` = size of the edition's roster;
-  - `sources` = the covering sources in **roster order**, which drives the coverage strip.
-  - The counting rule is set in `sources.yaml`. Editions of one brand can count once (all Semafor
-    editions = 1) or separately (TLDR and TLDR Dev = 2).
+  - Coverage counts **brands** (defined in `sources.yaml`): all Semafor editions share brand
+    `semafor` (= 1), while TLDR and TLDR Dev are separate brands (= 2).
+  - `coverage_n` = number of distinct roster brands in the cluster;
+  - `roster_n` = number of the edition's roster brands that delivered at least one issue in the run
+    window (the "M" in "covered by N of M");
+  - `sources` = the covering brands in **roster order** (`editions.yaml`), which drives the coverage strip.
 - **6c. Conflicts** (`conflicts.py`):
   1. **In code:** compare facts that measure the same quantity across members (same entity and
      unit, different value). Example: Paramount deal size $81B vs $110B.

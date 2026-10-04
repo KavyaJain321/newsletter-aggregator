@@ -1,0 +1,6 @@
+# Runtime + test dependencies for the pipeline package (Python 3.11+).
+requests>=2.31
+PyYAML>=6.0
+pydantic>=2.7
+tzdata>=2024.1      # IANA time zones for zoneinfo on Windows
+pytest>=8.0

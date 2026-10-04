@@ -235,6 +235,18 @@ This file is the durable memory across sessions and for the team. To keep it fre
 
 ## 14. SESSION LOG (append newest at top)
 
+### Session 2026-10-04 — Pipeline Step 0 built (branch `feat/pipeline-step0`)
+- Fresh `pipeline/` package per `instruction.md` (separate from Pranav's `src/`): config, LLM client,
+  read-only Gmail auth, SQLite probe, `doctor` CLI; empty packages for Steps 1–11. 84 unit tests pass.
+- `sources.yaml`: 30 unique sources (16 Tech, 15 Finance; Semafor Business serves both), full sender addresses verified against the inbox. Traps
+  handled: TLDR/TLDR Dev share an address (display-name regex), Money Stuff/Businessweek share one,
+  Pragmatic Engineer has 3 series aliases. Coverage counts **brands** (Semafor editions = 1).
+- LLM client: Ollama native API (think switch, schema output) → Groq fallback; retries, empty-output
+  guard, JSON repair, JSONL logs; no silent mock. Verified live against local Ollama (llama3.1:8b).
+- `doctor` live: Gmail OK (read-only, notifyy1008, 3,179 msgs); DB/paths OK. Needs a real model host:
+  `qwen3:14b` isn't on this laptop (RTX 4050, 6 GB) and GROQ_API_KEY isn't set.
+- `.gitignore` now excludes `data/llm_logs/` and `out/` (third-party text).
+
 ### Session 2026-09-30→10-03 — Finance expansion + newsletter X-factor research
 - Finance segment expanded (branch `finance/add-free-newsletters`): exact-sender Gmail filters for
   Money Stuff/Businessweek, Snacks, Axios Markets, Net Interest, Doomberg, EntryPoint, etc.

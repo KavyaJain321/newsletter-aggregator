@@ -1,0 +1,70 @@
+# Edition definitions (v1: Tech + Finance). See instruction.md Steps 0, 6, 7, 10.
+#
+# roster      Ordered brand ids. Drives the order of the coverage strip and the
+#             roster legend. A run's effective roster ("M" in "covered by N of M")
+#             is the subset of these brands that delivered at least one issue
+#             in the run window.
+# count_by    Coverage is counted per brand: all Semafor editions = 1,
+#             TLDR and TLDR Dev = 2 (separate brands).
+# window      since_last_run: from the previous successful run's window_end.
+#             first_run_hours applies when there is no previous run.
+#             weekly_lookback_days on weekly_lookback_weekdays: weekly sources
+#             published in the last N days are also eligible (Friday builders section).
+# weights     Starting weights for the Step 7 score; must sum to 1.0. Tune against
+#             reviewer edits.
+
+timezone: America/New_York
+
+editions:
+  tech:
+    label: Tech
+    accent: "#D4471F"
+    schedule:
+      weekdays: [mon, tue, wed, thu, fri]
+      send_time_et: "09:30"     # after Superhuman AI (~09:15 ET) arrives
+    window:
+      mode: since_last_run
+      first_run_hours: 24
+      weekly_lookback_days: 7
+      weekly_lookback_weekdays: [fri]
+    roster: [tldr, tldr_dev, superhuman, the_neuron, pragmatic_engineer, import_ai,
+             bytes, devopsish, console, changelog_nightly, semafor, exponential_view]
+    roster_labels: {}
+    count_by: brand
+    slots:
+      big_one: 1
+      splits: { min: 1, max: 2 }
+      hype_check: { min: 0, max: 1 }
+      quick_hits: { min: 6, max: 8 }
+      number_of_day: 1
+      modules: [try_this, builders, career, morsels]
+    weights: { coverage: 0.40, relevance: 0.25, freshness: 0.15, source_quality: 0.10, split_bonus: 0.10 }
+    reading_wpm: 230
+    max_email_kb: 102
+
+  finance:
+    label: Markets
+    accent: "#0A6B4C"
+    schedule:
+      weekdays: [mon, tue, wed, thu, fri]
+      send_time_et: "17:00"     # "After the Bell": after Brew Markets (~16:15 ET) arrives
+    window:
+      mode: since_last_run
+      first_run_hours: 24
+      weekly_lookback_days: 0
+      weekly_lookback_weekdays: []
+    roster: [snacks, axios_markets, entrypoint, daily_upside, the_hustle, finks_daily,
+             brew_markets, money_stuff, businessweek_daily, semafor, morning_brew,
+             the_diff, net_interest, doomberg, axios_pro_rata]
+    roster_labels: { semafor: "Semafor Business" }
+    count_by: brand
+    slots:
+      big_one: 1
+      splits: { min: 1, max: 1 }
+      hype_check: { min: 0, max: 0 }
+      quick_hits: { min: 6, max: 8 }
+      number_of_day: 1
+      modules: [close, movers, retail_flow, take, term, calendar, morsels]
+    weights: { coverage: 0.40, relevance: 0.25, freshness: 0.15, source_quality: 0.10, split_bonus: 0.10 }
+    reading_wpm: 230
+    max_email_kb: 102

@@ -1,0 +1,268 @@
+# Source registry for the Tech and Finance editions (v1).
+#
+# Matching rules (enforced by pipeline/config/registry.py):
+#   - Match on the FULL sender address, never a bare domain. Shared domains
+#     (substack.com, axios.com, morningbrew.com, semafor.com, bloomberg.com …)
+#     carry many unrelated newsletters.
+#   - When several sources share one address, every one of them must also set
+#     `name_regex` (matched against the sender display name).
+#   - Unmatched senders are ignored by ingest (e.g. crew@community.morningbrew.com
+#     community mail, "Bloomberg" welcome emails, Retirement Upside).
+#
+# Evidence: sender addresses and display names verified against the inbox
+# snapshot of 2026-09-24 → 10-03 unless `verified: false`.
+#
+# `brand` is the unit counted for "covered by N of M" and shown in the roster.
+
+brands:
+  tldr:               { label: "TLDR" }
+  tldr_dev:           { label: "TLDR Dev" }
+  superhuman:         { label: "Superhuman AI" }
+  the_neuron:         { label: "The Neuron" }
+  pragmatic_engineer: { label: "The Pragmatic Engineer" }
+  import_ai:          { label: "Import AI" }
+  bytes:              { label: "Bytes" }
+  devopsish:          { label: "DevOps'ish" }
+  console:            { label: "Console" }
+  changelog_nightly:  { label: "Changelog Nightly" }
+  semafor:            { label: "Semafor" }
+  exponential_view:   { label: "Exponential View" }
+  snacks:             { label: "Snacks" }
+  axios_markets:      { label: "Axios Markets" }
+  entrypoint:         { label: "EntryPoint" }
+  daily_upside:       { label: "The Daily Upside" }
+  the_hustle:         { label: "The Hustle" }
+  finks_daily:        { label: "Finks Daily" }
+  brew_markets:       { label: "Brew Markets" }
+  money_stuff:        { label: "Money Stuff" }
+  businessweek_daily: { label: "Businessweek Daily" }
+  morning_brew:       { label: "Morning Brew" }
+  the_diff:           { label: "The Diff" }
+  net_interest:       { label: "Net Interest" }
+  doomberg:           { label: "Doomberg" }
+  axios_pro_rata:     { label: "Axios Pro Rata" }
+
+sources:
+  # ------------------------------------------------------------------ TECH
+  - id: tldr
+    brand: tldr
+    editions: [tech]
+    match: [{ address: dan@tldrnewsletter.com, name_regex: "^TLDR$" }]
+    cadence: weekdays
+    expected_send_et: "06:40"
+    notes: "Arrives 3x via +tag aliases; ingest collapses duplicates."
+
+  - id: tldr_dev
+    brand: tldr_dev
+    editions: [tech]
+    match: [{ address: dan@tldrnewsletter.com, name_regex: "^TLDR Dev$" }]
+    cadence: weekdays
+    expected_send_et: "07:25"
+
+  - id: superhuman
+    brand: superhuman
+    editions: [tech]
+    match: [{ address: superhuman@mail.joinsuperhuman.ai }]
+    cadence: daily
+    expected_send_et: "09:15"
+
+  - id: the_neuron
+    brand: the_neuron
+    editions: [tech]
+    match: [{ address: theneuron@newsletter.theneurondaily.com }]
+    cadence: daily
+    expected_send_et: "06:35"
+
+  - id: pragmatic_engineer
+    brand: pragmatic_engineer
+    editions: [tech]
+    match:
+      - { address: pragmaticengineer+deepdives@substack.com, series: deepdive }
+      - { address: pragmaticengineer+the-pulse@substack.com, series: pulse }
+      - { address: pragmaticengineer@substack.com, series: podcast }
+    cadence: weekly
+    paywall_mode: partial
+    notes: "Deepdives cut after ~section 3-4 for free readers; free Pulse is a 7-day-late repost."
+
+  - id: import_ai
+    brand: import_ai
+    editions: [tech]
+    match: [{ address: importai@substack.com }]
+    cadence: weekly
+    notes: "Mondays. Fully free. Items separated by ***; ends with Tech Tales fiction."
+
+  - id: bytes
+    brand: bytes
+    editions: [tech]
+    match: [{ address: tyler@ui.dev }]
+    cadence: weekly
+
+  - id: devopsish
+    brand: devopsish
+    editions: [tech]
+    match: [{ address: devopsish@buttondown.email }]
+    cadence: weekly
+
+  - id: console
+    brand: console
+    editions: [tech]
+    match: [{ address: weekly@console.dev }]
+    cadence: weekly
+    notes: "Tool links are opaque Mailchimp redirects."
+
+  - id: changelog_nightly
+    brand: changelog_nightly
+    editions: [tech]
+    match: [{ address: nightly@changelog.com }]
+    cadence: daily
+    expected_send_et: "23:00"
+
+  - id: semafor_technology
+    brand: semafor
+    editions: [tech]
+    match: [{ address: technology@semafor.com }]
+    cadence: weekdays
+
+  - id: semafor_flagship
+    brand: semafor
+    editions: [tech]
+    match: [{ address: flagship@semafor.com }]
+    cadence: daily
+
+  - id: semafor_dc
+    brand: semafor
+    editions: [tech]
+    match: [{ address: washingtondc@semafor.com }]
+    cadence: weekdays
+
+  - id: semafor_energy
+    brand: semafor
+    editions: [tech]
+    match: [{ address: energy@semafor.com }]
+    cadence: weekdays
+
+  - id: exponential_view
+    brand: exponential_view
+    editions: [tech]
+    match: [{ address: exponentialview@substack.com }]
+    cadence: weekly
+    paywall_mode: preview
+    html_only: true
+    notes: "Subject emoji prefix encodes series: 🔮 essay/Sunday, 📈 data, 🚨 breaking, 👀 promo."
+
+  # --------------------------------------------------------------- FINANCE
+  - id: snacks
+    brand: snacks
+    editions: [finance]
+    match: [{ address: hello@snacks.robinhood.com }]
+    cadence: weekdays
+    expected_send_et: "06:30"
+    html_only: true
+    disclosure: "Published by Robinhood's Sherwood Media."
+
+  - id: axios_markets
+    brand: axios_markets
+    editions: [finance]
+    match: [{ address: markets@axios.com }]
+    cadence: weekdays
+    expected_send_et: "07:30"
+    html_only: true
+
+  - id: entrypoint
+    brand: entrypoint
+    editions: [finance]
+    match: [{ address: entrypoint@sherwoodmedia.com }]
+    cadence: mwf
+    expected_send_et: "08:30"
+    html_only: true
+    disclosure: "Published by Robinhood's Sherwood Media."
+
+  - id: daily_upside
+    brand: daily_upside
+    editions: [finance]
+    match: [{ address: squad@thedailyupside.com }]
+    cadence: weekdays
+    expected_send_et: "08:05"
+
+  - id: the_hustle
+    brand: the_hustle
+    editions: [finance]
+    match: [{ address: news@thehustle.co }]
+    cadence: weekdays
+    expected_send_et: "06:45"
+    notes: "Embeds a 'Yes, I'm real' engagement check — alert, never auto-click."
+
+  - id: finks_daily
+    brand: finks_daily
+    editions: [finance]
+    match: [{ address: joe@readthejoe.com }]
+    cadence: weekdays
+    expected_send_et: "07:05"
+    notes: "Formerly The Average Joe."
+
+  - id: brew_markets
+    brand: brew_markets
+    editions: [finance]
+    match: [{ address: brewmarkets@morningbrew.com }]
+    cadence: weekdays
+    expected_send_et: "16:15"
+
+  - id: money_stuff
+    brand: money_stuff
+    editions: [finance]
+    match: [{ address: noreply@news.bloomberg.com, name_regex: "^Matt Levine$" }]
+    cadence: weekdays
+    expected_send_et: "14:00"
+
+  - id: businessweek_daily
+    brand: businessweek_daily
+    editions: [finance]
+    match: [{ address: noreply@news.bloomberg.com, name_regex: "^Bloomberg Businessweek$" }]
+    cadence: weekdays
+    expected_send_et: "13:15"
+
+  - id: semafor_business
+    brand: semafor
+    editions: [finance, tech]
+    match: [{ address: business@semafor.com }]
+    cadence: weekdays
+    expected_send_et: "12:00"
+
+  - id: morning_brew
+    brand: morning_brew
+    editions: [finance]
+    match: [{ address: crew@morningbrew.com }]
+    cadence: daily
+    expected_send_et: "06:00"
+    notes: "Paused us once for inactivity (2026-09-02); re-confirmed 2026-10-04."
+
+  - id: the_diff
+    brand: the_diff
+    editions: [finance]
+    match: [{ address: the-diff@ghost.io }]
+    cadence: weekly
+    paywall_mode: partial
+    notes: "Free tier: Monday essay + Saturday Longreads."
+
+  - id: net_interest
+    brand: net_interest
+    editions: [finance]
+    match: [{ address: netinterest@substack.com }]
+    cadence: weekly
+    paywall_mode: preview
+    notes: "Fridays. Free email is a ~450-word preview."
+
+  - id: doomberg
+    brand: doomberg
+    editions: [finance]
+    match: [{ address: doomberg@substack.com }]
+    cadence: irregular
+    paywall_mode: preview
+
+  - id: axios_pro_rata
+    brand: axios_pro_rata
+    editions: [finance]
+    match: [{ address: pro-rata@axios.com }]
+    cadence: weekdays
+    verified: false
+    notes: "Confirmed 2026-10-04; sender address not yet seen — verify on first issue."

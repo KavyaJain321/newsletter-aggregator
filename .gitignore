@@ -31,6 +31,14 @@ data/archive/*
 *.sqlite3
 
 # ============================================================
+#  Pipeline runtime output — LLM call logs and generated
+#  issues contain third-party newsletter text: LOCAL ONLY.
+# ============================================================
+data/llm_logs/
+out/
+.pytest_cache/
+
+# ============================================================
 #  Python
 # ============================================================
 __pycache__/
