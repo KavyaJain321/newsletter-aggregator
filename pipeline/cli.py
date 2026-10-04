@@ -1,7 +1,9 @@
 """Command-line entry point:  python -m pipeline.cli <command>
 
   doctor [--deep]   check config, Gmail (read-only), LLM providers, DB and paths.
-                    --deep also runs one tiny live JSON completion.
+                    --deep also runs one tiny live JSON completion (starting and then
+                    stopping the on-demand remote Ollama if OLLAMA_REMOTE_SSH is set).
+  ollama status|up|down   manual control of the on-demand remote Ollama.
 Exit code 0 when every required check passes, 1 otherwise.
 """
 from __future__ import annotations
@@ -16,6 +18,7 @@ from .config.registry import load_registry
 from .config.settings import Settings, load_settings
 from .ingest.gmail import GmailClient
 from .llm.client import LLMClient, NoProviderAvailable
+from .llm.remote_ollama import RemoteOllama, RemoteOllamaError
 from .store.db import check_writable
 
 
@@ -73,16 +76,19 @@ def run_checks(settings: Settings, deep: bool = False, gmail: GmailClient | None
         checks.append(Check("llm: at least one provider", "OK" if any_ok else "FAIL",
                             "ready" if any_ok else "no provider is usable - see lines above"))
         if deep and any_ok:
+            remote = RemoteOllama(settings) if (settings.ollama_remote_ssh and llm is None) else None
             try:
-                r = client.complete(system="Reply with JSON only.",
-                                    user='Return exactly {"ok": true} as JSON.',
-                                    purpose="doctor@v1", json_mode=True, expect="object",
-                                    think=False, max_tokens=64)
-                good = r.data == {"ok": True}
-                checks.append(Check("llm: live JSON round-trip", "OK" if good else "FAIL",
-                                    f"{r.provider}:{r.model} in {r.latency_ms:.0f} ms -> {r.data}"))
-            except NoProviderAvailable as e:
-                checks.append(Check("llm: live JSON round-trip", "FAIL", str(e)))
+                if remote is not None:
+                    checks.append(Check("ollama: on-demand start", "OK", remote.up()))
+                checks.append(_live_json_check(client))
+            except RemoteOllamaError as e:
+                checks.append(Check("ollama: on-demand start", "FAIL", str(e)))
+            finally:
+                if remote is not None and remote.owned:
+                    try:
+                        checks.append(Check("ollama: on-demand stop", "OK", remote.down()))
+                    except RemoteOllamaError as e:
+                        checks.append(Check("ollama: on-demand stop", "FAIL", str(e)))
 
     # 4. Storage
     ok, detail = check_writable(settings.db_path)
@@ -96,6 +102,39 @@ def run_checks(settings: Settings, deep: bool = False, gmail: GmailClient | None
                         str(fx) if fx.is_dir() else f"{fx} not found (golden tests will be skipped)",
                         required=False))
     return checks
+
+
+def _live_json_check(client: LLMClient) -> Check:
+    try:
+        r = client.complete(system="Reply with JSON only.", user='Return exactly {"ok": true} as JSON.',
+                            purpose="doctor@v1", json_mode=True, expect="object", think=False, max_tokens=64)
+    except NoProviderAvailable as e:
+        return Check("llm: live JSON round-trip", "FAIL", str(e))
+    good = r.data == {"ok": True}
+    return Check("llm: live JSON round-trip", "OK" if good else "FAIL",
+                 f"{r.provider}:{r.model} in {r.latency_ms:.0f} ms -> {r.data}")
+
+
+def _ollama_cmd(settings: Settings, action: str) -> int:
+    if not settings.ollama_remote_ssh:
+        print("OLLAMA_REMOTE_SSH is not set: no on-demand host configured")
+        return 2
+    ro = RemoteOllama(settings)
+    try:
+        if action == "status":
+            st = ro.status()
+            print(f"host={settings.ollama_remote_ssh} reachable={st.reachable} server_up={st.server_up} "
+                  f"ours_pid={st.ours_pid} gpu_free_mb={st.vram_free_mb} host_time={st.host_weekday} {st.host_time} "
+                  f"binary_ok={st.binary_ok} model_present={st.model_present} {st.detail}")
+        elif action == "up":
+            print(ro.up())
+        else:
+            ro.owned = False  # down() re-checks ownership on the host before stopping anything
+            print(ro.down())
+    except RemoteOllamaError as e:
+        print(f"ERROR: {e}")
+        return 1
+    return 0
 
 
 def _print(checks: list[Check]) -> int:
@@ -114,11 +153,15 @@ def main(argv: list[str] | None = None) -> int:
     sub = parser.add_subparsers(dest="command", required=True)
     doc = sub.add_parser("doctor", help="check config, Gmail, LLMs, DB and paths")
     doc.add_argument("--deep", action="store_true", help="also run one live JSON completion")
+    oll = sub.add_parser("ollama", help="control the on-demand remote Ollama (OLLAMA_REMOTE_SSH)")
+    oll.add_argument("action", choices=["status", "up", "down"])
     args = parser.parse_args(argv)
     if hasattr(sys.stdout, "reconfigure"):  # never crash on a non-ASCII detail (Windows consoles)
         sys.stdout.reconfigure(errors="replace")
     if args.command == "doctor":
         return _print(run_checks(load_settings(), deep=args.deep))
+    if args.command == "ollama":
+        return _ollama_cmd(load_settings(), args.action)
     return 2
 
 

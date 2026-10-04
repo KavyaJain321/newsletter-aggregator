@@ -151,6 +151,9 @@ class OllamaProvider(_HTTPProvider):
         try:
             resp = self.session.get(f"{self.base}/api/tags", timeout=(3.0, 10.0))
         except requests.RequestException as e:
+            if self.s.ollama_remote_ssh:  # on-demand host: stopped between runs by design
+                from .remote_ollama import remote_health
+                return remote_health(self.s)
             return False, f"not reachable at {self.base} ({e.__class__.__name__})"
         if resp.status_code != 200:
             return False, f"HTTP {resp.status_code} from {self.base}/api/tags"

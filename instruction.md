@@ -155,7 +155,12 @@ Phase 2 extends it with `approved → scheduled → sent`.
   - Keep Qwen **thinking ON** for extraction (thinking OFF produced empty cards), and add an
     empty-output guard.
   - Log every call locally to a gitignored folder.
-- **CLI:** `python -m pipeline.cli doctor`
+- **On-demand GPU host (approved option A):** the team's `qwen3:14b` lives on the shared trijya-3
+  box, whose Ollama autostart was disabled on request. With `OLLAMA_REMOTE_SSH` set,
+  `llm/remote_ollama.py` starts Ollama over SSH only for a run and stops only its own tagged
+  process. Guards: minimum free VRAM; never inside the host's 04:00-06:45 IST power-off window
+  (Mon-Sat), with the lifetime capped before it; hard `timeout`; 1 model, 1 request, 2-min keep-alive.
+- **CLI:** `python -m pipeline.cli doctor` and `python -m pipeline.cli ollama status|up|down`
 - **Acceptance:** `doctor` exits 0 only when: config validates; the Gmail token refreshes with
   **exactly** `gmail.readonly` on the expected account; **at least one** LLM provider is usable (each
   provider's state is shown); the DB and output dirs are writable. `doctor --deep` also runs one live

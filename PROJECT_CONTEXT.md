@@ -246,6 +246,13 @@ This file is the durable memory across sessions and for the team. To keep it fre
 - `doctor` live: Gmail OK (read-only, notifyy1008, 3,179 msgs); DB/paths OK. Needs a real model host:
   `qwen3:14b` isn't on this laptop (RTX 4050, 6 GB) and GROQ_API_KEY isn't set.
 - `.gitignore` now excludes `data/llm_logs/` and `out/` (third-party text).
+- **Connected to trijya-3 (option A, on-demand):** Ollama + `qwen3:14b` live in trijya-3's WSL;
+  autostart was disabled 2026-09-11 by request, so `llm/remote_ollama.py` starts it only per run
+  (VRAM floor, IST power-off window, hard timeout, tagged process, stops only ours). Live cycle
+  verified: start 4 s, model 9.6 GB fully on GPU, clean stop. Reached via the team proxy
+  (trijya-3-1:11435). Fixed along the way: Windows CRLF in SSH scripts, post-quantum SSH KEX
+  hanging on a Tailscale direct path (now curve25519), `.env` inline comments. 114 tests pass.
+- Open: warm requests took ~14 s on the shared GPU; Step 5 must measure real throughput.
 
 ### Session 2026-09-30→10-03 — Finance expansion + newsletter X-factor research
 - Finance segment expanded (branch `finance/add-free-newsletters`): exact-sender Gmail filters for

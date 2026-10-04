@@ -6,6 +6,7 @@ sources.yaml / editions.yaml. Secrets are never printed: `Settings` masks them i
 from __future__ import annotations
 
 import os
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -25,8 +26,13 @@ def _read_dotenv(path: Path) -> dict[str, str]:
         key, _, val = line.partition("=")
         key = key.strip().removeprefix("export ").strip()
         val = val.strip()
-        if len(val) >= 2 and val[0] == val[-1] and val[0] in "\"'":
-            val = val[1:-1]
+        if val[:1] in ("\"", "'"):  # quoted: take up to the matching quote, ignore the rest
+            end = val.find(val[0], 1)
+            val = val[1:end] if end != -1 else val[1:]
+        elif val.startswith("#"):  # "KEY=   # note": empty value followed by a comment
+            val = ""
+        else:  # unquoted: drop an inline comment ("VALUE   # note"), as standard dotenv does
+            val = re.split(r"\s+#", val, maxsplit=1)[0].strip()
         values[key] = val
     return values
 
@@ -58,6 +64,15 @@ class Settings:
     llm_max_retries: int
     llm_think: bool
     llm_log_text: bool
+    # On-demand remote Ollama (instruction.md option A). Off unless OLLAMA_REMOTE_SSH is set.
+    ollama_remote_ssh: str | None = None
+    ollama_remote_bin: str = "$HOME/ollama/bin/ollama"
+    ollama_remote_max_minutes: int = 90
+    ollama_min_free_vram_mb: int = 10000
+    ollama_keep_alive: str = "2m"
+    remote_tz: str = "Asia/Kolkata"
+    remote_blackout: str = "03:50-06:50"      # host is powered off 04:00-~06:45
+    remote_blackout_days: str = "1-6"         # ISO weekdays: Mon-Sat (Sunday stays on)
 
     @property
     def groq_key_set(self) -> bool:
@@ -96,4 +111,12 @@ def load_settings(env: dict[str, str] | None = None, dotenv_path: Path | None = 
         llm_max_retries=int(g("LLM_MAX_RETRIES", "3")),
         llm_think=g("LLM_THINK", "true").strip().lower() in {"1", "true", "yes", "on"},
         llm_log_text=g("LLM_LOG_TEXT", "true").strip().lower() in {"1", "true", "yes", "on"},
+        ollama_remote_ssh=(g("OLLAMA_REMOTE_SSH") or "").strip() or None,
+        ollama_remote_bin=g("OLLAMA_REMOTE_BIN", "$HOME/ollama/bin/ollama"),
+        ollama_remote_max_minutes=int(g("OLLAMA_REMOTE_MAX_MINUTES", "90")),
+        ollama_min_free_vram_mb=int(g("OLLAMA_MIN_FREE_VRAM_MB", "10000")),
+        ollama_keep_alive=g("OLLAMA_KEEP_ALIVE", "2m"),
+        remote_tz=g("REMOTE_TZ", "Asia/Kolkata"),
+        remote_blackout=g("REMOTE_BLACKOUT", "03:50-06:50"),
+        remote_blackout_days=g("REMOTE_BLACKOUT_DAYS", "1-6"),
     )

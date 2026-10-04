@@ -23,6 +23,27 @@ def test_dotenv_then_env_precedence(tmp_path):
     assert s.llm_think is False
 
 
+def test_dotenv_inline_comments(tmp_path):
+    envfile = tmp_path / ".env"
+    envfile.write_text('OLLAMA_MIN_FREE_VRAM_MB=9000      # refuse below this\n'
+                       'OLLAMA_REMOTE_SSH=                # e.g. user@host\n'
+                       'GROQ_MODEL="model#with-hash"      # quoted keeps #\n'
+                       'OLLAMA_MODEL=qwen3:8b#tag-kept\n', encoding="utf-8")
+    s = load_settings(env={}, dotenv_path=envfile)
+    assert s.ollama_min_free_vram_mb == 9000
+    assert s.ollama_remote_ssh is None
+    assert s.groq_model == "model#with-hash"
+    assert s.ollama_model == "qwen3:8b#tag-kept"   # '#' without preceding space is not a comment
+
+
+def test_env_example_parses(tmp_path):
+    """The shipped template must load cleanly when copied to .env."""
+    from pipeline.config.settings import REPO_ROOT
+    s = load_settings(env={}, dotenv_path=REPO_ROOT / "pipeline" / "env.example")
+    assert s.ollama_min_free_vram_mb == 10000 and s.ollama_remote_ssh is None
+    assert s.groq_api_key is None and s.ollama_base_url == "http://localhost:11434"
+
+
 def test_relative_paths_resolve_to_repo(tmp_path):
     s = load_settings(env={"PIPELINE_DATA_DIR": "data"}, dotenv_path=tmp_path / "x")
     assert s.data_dir.is_absolute() and s.db_path.name == "pipeline.db"

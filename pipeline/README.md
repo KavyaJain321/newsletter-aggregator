@@ -1,6 +1,6 @@
 # pipeline/ — newsletter generation pipeline
 
-Built step by step from [`instruction.md`](../instruction.md). **Status: Step 0 (setup & config) done.**
+Built step by step from [`instruction.md`](../instruction.md). **Status: Step 0 (setup & config) done, including on-demand GPU host control.**
 
 ## Setup
 ```bash
@@ -26,9 +26,30 @@ output dirs writable.
 | `llm/json_repair.py` | Recovers JSON from model output (reasoning blocks, fences, prose, trailing commas, truncation) — never invents content |
 | `ingest/gmail.py` | Read-only auth + profile; refuses any token scope beyond `gmail.readonly` |
 | `store/db.py` | SQLite connect + writability probe (schema arrives in Step 4) |
-| `cli.py` | `doctor` |
+| `llm/remote_ollama.py` | On-demand Ollama on the shared GPU host over SSH: guarded start, tagged process, stops only its own |
+| `cli.py` | `doctor [--deep]`, `ollama status|up|down` |
 
 Other packages are empty placeholders named for the step that fills them.
+
+## On-demand GPU host (trijya-3)
+The team's `qwen3:14b` runs on the shared **trijya-3** workstation (RTX 3080 Ti, via Tailscale).
+Its Ollama autostart was disabled on request, so with `OLLAMA_REMOTE_SSH` set the pipeline
+**starts Ollama only for a run and stops it afterwards** (`llm/remote_ollama.py`):
+- starts only if the GPU has >= `OLLAMA_MIN_FREE_VRAM_MB` free, and never in the host's
+  04:00-06:45 IST power-off window (Mon-Sat); lifetime capped so it exits before it
+- runs under `timeout`, so it dies on schedule even if this machine crashes
+- tagged `nlp-ollama-serve`; we only ever stop a process still carrying our tag.
+  A server someone else started is used but never stopped
+- bound to 127.0.0.1 on the host, reached through the team's Tailscale proxy (`:11435`)
+- 1 loaded model, 1 parallel request, model unloaded 2 min after the last request
+
+```bash
+.venv/Scripts/python -m pipeline.cli ollama status   # read-only
+.venv/Scripts/python -m pipeline.cli ollama up       # manual start (normally per run)
+.venv/Scripts/python -m pipeline.cli ollama down     # stops only our tagged process
+```
+Measured 2026-10-04: start 4 s; `qwen3:14b` 9.6 GB, 100% on GPU; first call ~14 s incl. load.
+SSH uses classic curve25519 key exchange: the post-quantum default hung on a Tailscale direct path.
 
 ## Key rules baked in
 - Runtime LLMs are local Ollama or Groq only — never Anthropic models.
