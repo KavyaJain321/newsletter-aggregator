@@ -235,6 +235,26 @@ This file is the durable memory across sessions and for the team. To keep it fre
 
 ## 14. SESSION LOG (append newest at top)
 
+### Session 2026-10-05 (later) — Owner decision: never reveal our sources
+- Owner: readers must not see that content comes from other newsletters, or how many covered a
+  story. That would reveal the strategy.
+- **Removed from what readers see:**
+  - coverage strips and "N of M" counts;
+  - the roster legend and "we read N issues from M newsletters";
+  - "From: <newsletter>" source lines;
+  - newsletter citations inside splits;
+  - "How this issue was made" (now "How we work": method only).
+- **Kept internally:** coverage and source newsletters stay in the issue JSON for ranking and
+  fact-tracing, and are never rendered.
+- **Content rule:** readers see primary-source credit only (Freddie Mac, Bain, a16z, KKR, Goldman,
+  WSJ editorial, NYT). A newsletter's own opinions, analysis and exclusives were cut, not
+  de-attributed, so we don't pass off their work as ours. Examples: the Net Interest take was
+  rewritten from primary estimates; the Doomberg and Snacks takes were dropped.
+- **Guard:** a unit test fails if any registry brand name, newsletter link or "N of M" count appears
+  in a rendered issue (verified it catches an injected "TLDR"). Rule 11 was added to instruction.md.
+- **Open:** the working name "Twenty to One" itself hints at the many-to-one model. Worth
+  reconsidering before launch.
+
 ### Session 2026-10-05 — Send-ready sample issues (Tech + Markets) and the real render step
 - Owner asked for publish-ready samples showing how our newsletter looks, what it provides and its
   speciality. Built **Tech Mon Oct 5** (13 issues, 7 newsletters) and **Markets Mon Oct 5 "week

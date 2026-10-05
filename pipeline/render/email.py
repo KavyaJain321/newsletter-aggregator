@@ -10,7 +10,10 @@ Email-client rules followed (Gmail, Apple Mail, Outlook desktop/web, iOS/Android
   - no CSS grid/flex/variables/color-mix; web fonts are optional (system fallbacks set)
   - hidden preheader; MSO conditionals pin the width in Outlook
   - ESP placeholders ({{unsubscribe_url}} etc., see MERGE_TAGS) are filled at send time
-Design: design/README.md (approved Oct 2 samples). Accent colour per edition.
+Design: design/README.md. Accent colour per edition.
+
+Readers never see which newsletters we read (owner decision 2026-10-05): provenance fields
+(roster, coverage, sources, cite, via) are never rendered; only primary-source credits/links are.
 """
 from __future__ import annotations
 
@@ -62,20 +65,8 @@ class _R:
         return (f'<span style="font-family:{MONO};font-size:{size}px;font-weight:{weight};letter-spacing:.08em;'
                 f'text-transform:uppercase;color:{color};{extra}">{text}</span>')
 
-    def strip(self, coverage: list[str]) -> str:
-        on = set(coverage)
-        cells = "".join(
-            f'<td style="width:9px;height:9px;background:{self.acc if b in on else OFF};font-size:0;'
-            f'line-height:0;border-radius:2px">&nbsp;</td><td style="width:3px;font-size:0">&nbsp;</td>'
-            for b in self.order)
-        return f'<table {T} style="display:inline-table;vertical-align:middle"><tr>{cells}</tr></table>'
-
-    def cov(self, coverage: list[str]) -> str:
-        return (f'<span style="font-family:{MONO};font-size:11px;color:{INK2};white-space:nowrap">'
-                f'<b>{len(coverage)} of {len(self.order)}</b><span class="hide-m"> newsletters</span></span>')
-
     def badge(self, kind: str) -> str:
-        label, color = {"reported": ("Reported", AMBER), "differ": ("Sources differ", DOWN),
+        label, color = {"reported": ("Reported", AMBER), "differ": ("Reports differ", DOWN),
                         "self": ("Self-reported", MUTED), "paywalled": ("Paywalled", INK2)}[kind]
         return (f'<span style="display:inline-block;font-family:{MONO};font-size:10px;font-weight:600;'
                 f'letter-spacing:.06em;text-transform:uppercase;color:{color};border:1px solid {color};'
@@ -91,15 +82,6 @@ class _R:
                 f'<td width="100%" style="border-bottom:1px solid {RULE};font-size:0;line-height:0">&nbsp;</td>'
                 f'</tr></table>')
 
-    def srcline(self, names: list[tuple[str, str | None]], prefix: str = "From") -> str:
-        parts = []
-        for name, url in names:
-            n = esc(name)
-            parts.append(f'<a href="{url}" style="color:{INK2};text-decoration:none;border-bottom:1px solid {RULE}">'
-                         f'{n}</a>' if url else n)
-        return (f'<p style="margin:12px 0 0;font-family:{SANS};font-size:13px;line-height:1.5;color:{MUTED}">'
-                f'{self.mono(prefix, FAINT, 10, 600)}&nbsp; {" &middot; ".join(parts)}</p>')
-
     def link(self, text: str, url: str) -> str:
         return (f'<a href="{_html.escape(url)}" style="color:{self.acc_ink};text-decoration:underline">'
                 f'{esc(text)}</a>')
@@ -110,16 +92,12 @@ class _R:
     # ---------------------------------------------------------------- header
     def header(self) -> str:
         i = self.i
-        roster = " ".join(
-            f'<span style="display:inline-block;margin:0 12px 6px 0;font-family:{SANS};font-size:12px;'
-            f'color:{INK2};white-space:nowrap"><span style="display:inline-block;width:9px;height:9px;'
-            f'background:{self.acc};border-radius:2px;margin-right:5px"></span>{esc(r.label)}</span>'
-            for r in i.roster)
+        stories = sum(1 for b in i.blocks if isinstance(b, Story)) + sum(
+            len(b.items) for b in i.blocks if isinstance(b, Hits))
         meta = " &nbsp;&middot;&nbsp; ".join([
-            f"<b style=\"color:{INK}\">{len(i.roster)}</b> newsletters",
-            f"<b style=\"color:{INK}\">{i.issues_read}</b> issues &rarr; <b style=\"color:{INK}\">1</b>",
             f"<b style=\"color:{INK}\">{i.read_minutes}-min</b> read",
-            f"{i.ads_removed} ads removed"])
+            f"<b style=\"color:{INK}\">{stories}</b> stories",
+            "no ads, ever"])
         today = "".join(
             f'<tr><td valign="top" style="width:26px;padding:10px 0;border-bottom:1px solid {RULE};font-family:{MONO};'
             f'font-size:12px;font-weight:600;color:{self.acc}">{n}</td><td style="padding:9px 0;border-bottom:1px solid '
@@ -134,16 +112,12 @@ class _R:
 <h1 class="mast" style="margin:22px 0 0;font-family:{SANS};font-weight:900;font-size:54px;line-height:.95;letter-spacing:-2px;color:{INK}">Twenty <em style="font-family:{SERIF};font-style:italic;font-weight:400;font-size:42px;letter-spacing:0;color:{self.acc}">to</em> One <span style="display:inline-block;vertical-align:middle;margin-left:6px;font-family:{MONO};font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#FFFFFF;background:{self.acc};padding:4px 8px 3px;border-radius:2px">{esc(i.edition_label)}</span></h1>
 <p style="margin:10px 0 0;font-family:{SERIF};font-style:italic;font-size:18px;color:{INK2}">{esc(i.tagline)}</p>
 <p style="margin:12px 0 0;font-family:{MONO};font-size:11.5px;line-height:1.7;color:{MUTED}">{meta}</p>
-<table {T} width="100%" style="margin-top:20px;background:{PANEL};border-radius:6px"><tr><td style="padding:14px 16px 8px">
-  <p style="margin:0 0 10px">{self.mono("Read for this issue", MUTED, 10)}<span style="font-family:{SANS};font-size:12px;color:{FAINT}"> &nbsp;&middot; each story shows which of these covered it</span></p>
-  {roster}
-</td></tr></table>
 <table {T} width="100%" style="margin-top:26px;border-top:1px solid {RULE};border-bottom:1px solid {RULE}"><tr>
   <td class="stack" valign="middle" style="padding:18px 20px 18px 0;white-space:nowrap"><span class="notd-num" style="font-family:{SANS};font-weight:900;font-size:56px;line-height:1;letter-spacing:-2px;color:{self.acc}">{esc(nd.value)}</span></td>
   <td class="stack" valign="middle" style="padding:18px 0">
     <p style="margin:0 0 5px">{self.mono("Number of the day", MUTED, 10)}</p>
     {self.p(nd.text, 16, INK2, "0")}
-    <p style="margin:5px 0 0;font-family:{SANS};font-size:12.5px;color:{MUTED}">{esc(nd.via)}</p>
+    {f'<p style="margin:5px 0 0;font-family:{SANS};font-size:12.5px;color:{MUTED}">Source: {esc(nd.credit)}</p>' if nd.credit else ""}
   </td>
 </tr></table>
 <table {T} width="100%" style="margin-top:20px">{today}</table>'''
@@ -168,8 +142,9 @@ class _R:
             last = n == len(sides) - 1
             items = "".join(
                 f'<p style="margin:0 0 10px;font-family:{SANS};font-size:14px;line-height:1.5;color:{INK2}">'
-                f'{esc(it.text)} <span style="font-family:{MONO};font-size:10.5px;color:{MUTED};white-space:nowrap">'
-                f'&mdash; {esc(it.cite)}</span></p>' for it in s.items)
+                f'{esc(it.text)}' + (f' <span style="font-family:{MONO};font-size:10.5px;color:{MUTED};'
+                f'white-space:nowrap">&mdash; {esc(it.credit)}</span>' if it.credit else '') + '</p>'
+                for it in s.items)
             bg = self.tint if not last else PANEL
             cols.append(
                 f'<td class="stack" valign="top" width="{w}%" style="padding:0 {0 if last else 8}px 0 0">'
@@ -186,8 +161,7 @@ class _R:
                f'color:{"#FFFFFF" if solid else self.acc_ink};background:{self.acc if solid else self.tint}">'
                f'{esc(s.tag)}</span>')
         eyebrow = (f'<table {T} style="margin:30px 0 12px"><tr><td style="padding-right:12px">{tag}</td>'
-                   f'<td style="padding-right:7px">{self.strip(s.coverage)}</td><td style="padding-right:12px">'
-                   f'{self.cov(s.coverage)}</td><td class="hide-m">{self.mono(esc(s.read_time), FAINT, 10.5)}</td></tr></table>')
+                   f'<td>{self.mono(esc(s.read_time), FAINT, 10.5)}</td></tr></table>')
         size = 30 if s.size == "lead" else 24
         out = [eyebrow,
                f'<h2 style="margin:0 0 12px;font-family:{SANS};font-weight:800;font-size:{size}px;line-height:1.15;'
@@ -207,8 +181,7 @@ class _R:
         if s.read_original:
             links = " &middot; ".join(self.link(l.text, str(l.url)) for l in s.read_original)
             out.append(f'<p style="margin:4px 0 0;font-family:{SANS};font-size:14px;color:{INK2}">'
-                       f'Read the original: {links}</p>')
-        out.append(self.srcline([(x.name, str(x.url) if x.url else None) for x in s.sources]))
+                       f'Read more: {links}</p>')
         return "".join(out)
 
     def hits(self, h: Hits) -> str:
@@ -217,12 +190,11 @@ class _R:
             extra = f' &middot; {self.link(it.link.text, str(it.link.url))}' if it.link else ""
             rows.append(
                 f'<tr><td style="padding:16px 0;border-bottom:1px solid {RULE}">'
-                f'<table {T}><tr><td style="padding-right:7px">{self.strip(it.coverage)}</td><td>{self.cov(it.coverage)}'
-                f'{"".join(self.badge(b) for b in it.badges)}</td></tr></table>'
-                f'<h3 style="margin:8px 0 6px;font-family:{SANS};font-size:18px;font-weight:700;line-height:1.3;'
-                f'color:{INK}">{esc(it.headline)}</h3>{self.p(it.text, 16, INK2, "0")}'
+                f'<h3 style="margin:0 0 6px;font-family:{SANS};font-size:18px;font-weight:700;line-height:1.3;'
+                f'color:{INK}">{esc(it.headline)}{"".join(self.badge(b) for b in it.badges)}</h3>'
+                f'{self.p(it.text, 16, INK2, "0")}'
                 f'<p style="margin:6px 0 0;font-family:{MONO};font-size:11px;color:{MUTED}">'
-                f'{esc(" · ".join(it.sources))} &middot; {esc(it.read_time)}{extra}</p></td></tr>')
+                f'{esc(it.read_time)}{extra}</p></td></tr>')
         return self.label(h.label) + f'<table {T} width="100%">{"".join(rows)}</table>'
 
     def markets(self, m: Markets) -> str:
@@ -247,16 +219,13 @@ class _R:
                        f'<table {T} width="100%">{mv}</table>')
         if m.note:
             out.append(self.p(m.note, 14, MUTED, "12px 0 0"))
-        out.append(f'<p style="margin:8px 0 0;font-family:{MONO};font-size:11px;color:{MUTED}">'
-                   f'{esc(" · ".join(m.sources))}</p>')
         return "".join(out)
 
     def compact(self, c: Compact) -> str:
         rows = []
         for e in c.items:
             link = f' {self.link(e.link.text, str(e.link.url))}' if e.link else ""
-            src = (f'<br><span style="font-family:{MONO};font-size:11px;color:{MUTED}">{esc(e.source)}</span>'
-                   if e.source else "")
+            src = ""
             rows.append(
                 f'<tr><td class="stack" valign="top" style="width:110px;padding:12px 14px 12px 0;border-bottom:1px solid '
                 f'{RULE}">{self.mono(esc(e.key), self.acc_ink, 10, 600)}</td><td class="stack" style="padding:11px 0;'
@@ -270,9 +239,9 @@ class _R:
         prompt = (f'<p style="margin:4px 0 12px;padding:12px 14px;background:{CARD};border:1px solid {RULE};'
                   f'border-radius:4px;font-family:{MONO};font-size:13px;line-height:1.6;color:{INK}">{esc(c.prompt)}</p>'
                   if c.prompt else "")
-        src = (f'<p style="margin:0;font-family:{MONO};font-size:11px;color:{MUTED}">{esc(c.source)}'
-               + (f' &middot; {self.link(c.link.text, str(c.link.url))}' if c.link else "") + '</p>'
-               if c.source or c.link else "")
+        bits = ([esc(c.credit)] if c.credit else []) + ([self.link(c.link.text, str(c.link.url))] if c.link else [])
+        src = (f'<p style="margin:0;font-family:{MONO};font-size:11px;color:{MUTED}">{" &middot; ".join(bits)}</p>'
+               if bits else "")
         return (self.label(c.label) +
                 f'<table {T} width="100%" style="background:{self.tint};border-left:4px solid {self.acc};'
                 f'border-radius:4px"><tr><td style="padding:16px 18px 14px">'
@@ -281,16 +250,16 @@ class _R:
 
     def prose(self, x: Prose) -> str:
         out = [self.label(x.label)] + [self.p(t, 16.5) for t in x.paragraphs]
-        if x.sources:
-            out.append(self.srcline([(s.name, str(s.url) if s.url else None) for s in x.sources]))
+        if x.links:
+            links = " &middot; ".join(self.link(l.text, str(l.url)) for l in x.links)
+            out.append(f'<p style="margin:4px 0 0;font-family:{SANS};font-size:14px;color:{INK2}">Read more: {links}</p>')
         return "".join(out)
 
     def morsels(self, m: Morsels) -> str:
         rows = "".join(
             f'<tr><td valign="top" style="width:18px;padding:8px 0;font-family:{SANS};font-size:16px;color:{self.acc}">'
             f'&#9632;</td><td style="padding:7px 0;font-family:{SERIF};font-size:16px;line-height:1.55;color:{INK2}">'
-            f'{esc(x.text)} <span style="font-family:{MONO};font-size:10.5px;color:{MUTED}">{esc(x.source)}</span>'
-            f'</td></tr>' for x in m.items)
+            f'{esc(x.text)}</td></tr>' for x in m.items)
         return self.label(m.label) + f'<table {T} width="100%">{rows}</table>'
 
     def block(self, b) -> str:
@@ -303,18 +272,14 @@ class _R:
         btn = (lambda t, r, pri: f'<a href="{{{{feedback_url}}}}?r={r}" style="display:inline-block;margin:0 6px 6px 0;'
                f'padding:9px 16px;border-radius:3px;font-family:{SANS};font-size:14px;font-weight:600;text-decoration:none;'
                f'{"background:" + INK + ";color:#FFFFFF" if pri else "border:1px solid " + RULE + ";color:" + INK}">{t}</a>')
-        srcs = " &middot; ".join(
-            f'<a href="{r.url}" style="color:{INK2};text-decoration:none;border-bottom:1px solid {RULE}">{esc(r.label)}</a>'
-            if r.url else esc(r.label) for r in i.roster)
         return f'''
 <table {T} width="100%" style="margin-top:40px;border-top:1px solid {RULE}"><tr><td align="center" style="padding:22px 0 6px">
   <p style="margin:0 0 12px;font-family:{SANS};font-size:16px;font-weight:700;color:{INK}">How was today's issue?</p>
   {btn("Loved it", "loved", True)}{btn("It was fine", "fine", False)}{btn("Not for me", "no", False)}
 </td></tr></table>
 <table {T} width="100%" style="margin-top:22px;background:{PANEL};border-radius:6px"><tr><td style="padding:16px 18px">
-  <p style="margin:0 0 6px">{self.mono("How this issue was made", INK, 10.5, 600)}</p>
-  {self.p(i.made, 14.5, INK2, "0 0 8px")}
-  <p style="margin:0;font-family:{SANS};font-size:13px;line-height:1.7;color:{MUTED}">{srcs}</p>
+  <p style="margin:0 0 6px">{self.mono("How we work", INK, 10.5, 600)}</p>
+  {self.p(i.made, 14.5, INK2, "0")}
 </td></tr></table>'''
 
     def closing(self) -> str:
@@ -382,16 +347,16 @@ body{{margin:0;padding:0;-webkit-text-size-adjust:100%}} table{{border-collapse:
 
 def render_text(issue: Issue) -> str:
     """The plain-text alternative part (multipart/alternative)."""
-    n = len(issue.roster)
+    nd = issue.number_of_day
     out = [f"TWENTY TO ONE · {issue.edition_label.upper()}", f"{issue.date_label} · No. {issue.issue_no}",
-           issue.tagline, f"{n} newsletters · {issue.issues_read} issues -> 1 · {issue.read_minutes}-min read",
-           "", f"NUMBER OF THE DAY: {issue.number_of_day.value}", plain(issue.number_of_day.text),
-           f"({issue.number_of_day.via})", "", "TODAY"]
+           issue.tagline, f"{issue.read_minutes}-min read · no ads", "",
+           f"NUMBER OF THE DAY: {nd.value}", plain(nd.text)] + ([f"(Source: {nd.credit})"] if nd.credit else []) + [
+           "", "TODAY"]
     out += [f"{k}. {plain(t)}" for k, t in enumerate(issue.today, 1)]
     for b in issue.blocks:
         out.append("")
         if isinstance(b, Story):
-            out += [f"== {b.tag.upper()} · covered by {len(b.coverage)} of {n} · {b.read_time}", plain(b.headline)]
+            out += [f"== {b.tag.upper()} · {b.read_time}", plain(b.headline)]
             if b.sowhat:
                 out.append(f"SO WHAT: {plain(b.sowhat)}")
             out += [plain(t) for t in b.paragraphs]
@@ -399,15 +364,13 @@ def render_text(issue: Issue) -> str:
                 out += [f"  {r.label}: {plain(r.text)}" for r in b.ledger.rows]
             for s in b.split:
                 out.append(f"  {s.kicker} - {s.title}")
-                out += [f"   * {plain(it.text)} ({it.cite})" for it in s.items]
+                out += [f"   * {plain(it.text)}" + (f" ({it.credit})" if it.credit else "") for it in s.items]
             out += [plain(t) for t in b.after]
-            out += [f"Read: {l.text} {l.url}" for l in b.read_original]
-            out.append("From: " + ", ".join(s.name for s in b.sources))
+            out += [f"Read more: {l.text} {l.url}" for l in b.read_original]
         elif isinstance(b, Hits):
             out.append(f"== {b.label.upper()}")
             for h in b.items:
-                out += [f"* {plain(h.headline)} ({len(h.coverage)} of {n})", f"  {plain(h.text)}",
-                        f"  {' · '.join(h.sources)}" + (f" {h.link.url}" if h.link else "")]
+                out += [f"* {plain(h.headline)}", f"  {plain(h.text)}"] + ([f"  {h.link.url}"] if h.link else [])
         elif isinstance(b, Markets):
             out += [f"== {b.label.upper()} ({b.asof})"] + [f"  {r.name}: {r.value} {r.change}" for r in b.rows]
             out += [f"  {m.ticker} {m.change}: {plain(m.why)}" for m in b.movers]
@@ -422,10 +385,10 @@ def render_text(issue: Issue) -> str:
             if b.link:
                 out.append(f"  Read: {b.link.text} {b.link.url}")
         elif isinstance(b, Prose):
-            out += [f"== {b.label.upper()}"] + [plain(t) for t in b.paragraphs]
+            out += [f"== {b.label.upper()}"] + [plain(t) for t in b.paragraphs] + [f"Read more: {l.url}" for l in b.links]
         elif isinstance(b, Morsels):
-            out += [f"== {b.label.upper()}"] + [f"* {plain(m.text)} ({m.source})" for m in b.items]
-    out += ["", "HOW THIS ISSUE WAS MADE", plain(issue.made), "",
+            out += [f"== {b.label.upper()}"] + [f"* {plain(m.text)}" for m in b.items]
+    out += ["", "HOW WE WORK", plain(issue.made), "",
             "Unsubscribe: {{unsubscribe_url}} · Preferences: {{preferences_url}}", "{{postal_address}}"]
     return "\n".join(out) + "\n"
 

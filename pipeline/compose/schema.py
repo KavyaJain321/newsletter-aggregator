@@ -2,8 +2,14 @@
 turns into an email. Strict on purpose: an LLM-written issue that doesn't fit is rejected,
 never "best-effort" rendered.
 
-Text fields are plain text. The only inline markup allowed is **bold**. Every story names the
-roster brands that covered it (`coverage`), which drives the coverage strip ("3 of 9").
+Text fields are plain text. The only inline markup allowed is **bold**.
+
+PUBLIC vs INTERNAL (owner decision 2026-10-05): readers never see which newsletters we read.
+  - `roster`, `coverage`, `sources`, `cite`/`source` provenance fields are INTERNAL: they keep
+    every fact traceable and drive ranking, but the renderer never prints them.
+  - What readers see is credited to PRIMARY sources only (companies, agencies, named analysts,
+    original reports) via `read_original` / `link` / `credit` fields and the text itself.
+  - A newsletter's own opinion or analysis is not republished (not even unattributed).
 """
 from __future__ import annotations
 
@@ -48,7 +54,8 @@ class Ledger(_M):
 
 class SideItem(_M):
     text: str
-    cite: str
+    cite: str = ""                # INTERNAL provenance (newsletter); never rendered
+    credit: str | None = None     # PUBLIC attribution to a primary source/person, e.g. "Jefferies"
 
 
 class Side(_M):
@@ -72,8 +79,8 @@ class Story(_M):
     after: list[str] = []         # paragraphs after the ledger/split
     note: str | None = None
     badges: list[Badge] = []
-    read_original: list[Link] = []
-    sources: list[Source] = Field(min_length=1)
+    read_original: list[Link] = []           # PUBLIC: primary-source links only
+    sources: list[Source] = Field(min_length=1)   # INTERNAL provenance; never rendered
 
     @model_validator(mode="after")
     def _split_sides(self) -> "Story":
@@ -87,9 +94,9 @@ class Hit(_M):
     badges: list[Badge] = []
     headline: str
     text: str
-    sources: list[str] = Field(min_length=1)
+    sources: list[str] = Field(min_length=1)   # INTERNAL provenance; never rendered
     read_time: str = "1 min"
-    link: Link | None = None
+    link: Link | None = None                    # PUBLIC: primary-source link
 
 
 class Hits(_M):
@@ -119,7 +126,7 @@ class Markets(_M):
     rows: list[MarketRow] = Field(min_length=1)
     movers: list[Mover] = []
     note: str | None = None
-    sources: list[str] = Field(min_length=1)
+    sources: list[str] = Field(min_length=1)   # INTERNAL provenance; never rendered
 
 
 class Entry(_M):
@@ -127,7 +134,7 @@ class Entry(_M):
     title: str
     text: str = ""
     badges: list[Badge] = []
-    source: str | None = None
+    source: str | None = None     # INTERNAL provenance; never rendered
     link: Link | None = None
 
 
@@ -144,7 +151,8 @@ class Callout(_M):
     title: str
     paragraphs: list[str] = Field(min_length=1)
     prompt: str | None = None     # monospace box (try-this prompt, formula)
-    source: str | None = None
+    source: str | None = None     # INTERNAL provenance; never rendered
+    credit: str | None = None     # PUBLIC attribution to a primary source/person
     link: Link | None = None
 
 
@@ -152,12 +160,13 @@ class Prose(_M):
     kind: Literal["prose"] = "prose"
     label: str
     paragraphs: list[str] = Field(min_length=1)
-    sources: list[Source] = []
+    sources: list[Source] = []    # INTERNAL provenance; never rendered
+    links: list[Link] = []        # PUBLIC: primary-source links
 
 
 class Morsel(_M):
     text: str
-    source: str
+    source: str                   # INTERNAL provenance; never rendered
 
 
 class Morsels(_M):
@@ -172,7 +181,8 @@ Block = Annotated[Union[Story, Hits, Markets, Compact, Callout, Prose, Morsels],
 class NumberOfDay(_M):
     value: str
     text: str
-    via: str
+    via: str                      # INTERNAL provenance; never rendered
+    credit: str | None = None     # PUBLIC primary source, e.g. "US Labor Department"
 
 
 class Issue(_M):
@@ -191,8 +201,8 @@ class Issue(_M):
     number_of_day: NumberOfDay
     today: list[str] = Field(min_length=2, max_length=4)
     blocks: list[Block] = Field(min_length=3)
-    made: str                     # "How this issue was made"
-    window_note: str
+    made: str                     # "How we work" (public; must not mention source newsletters)
+    window_note: str              # footer line (public)
 
     @model_validator(mode="after")
     def _coverage_in_roster(self) -> "Issue":

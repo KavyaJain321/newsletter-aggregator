@@ -1,7 +1,7 @@
 # Edition definitions (v1: Tech + Finance). See instruction.md Steps 0, 6, 7, 10.
 #
-# roster      Ordered brand ids. Drives the order of the coverage strip and the
-#             roster legend. A run's effective roster ("M" in "covered by N of M")
+# roster      Ordered brand ids. INTERNAL ONLY (never shown to readers, instruction.md
+#             rule 11): used for coverage-based ranking. A run's effective roster ("M")
 #             is the subset of these brands that delivered at least one issue
 #             in the run window.
 # count_by    Coverage is counted per brand: all Semafor editions = 1,

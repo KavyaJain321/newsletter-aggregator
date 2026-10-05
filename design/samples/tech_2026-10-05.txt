@@ -1,92 +1,85 @@
 TWENTY TO ONE · TECH
 Monday, October 5, 2026 · No. 002
-We read the tech newsletters. You read this.
-7 newsletters · 13 issues -> 1 · 7-min read
+The tech news that matters. Checked, explained, no ads.
+7-min read · no ads
 
 NUMBER OF THE DAY: 2%
 Share of S&P 500 companies that disclose an AI metric they track over time, even though nearly 30% say AI has had a "quantifiable impact." The spending is easy to count. The payoff isn't, yet.
-(The Neuron, citing a16z)
+(Source: a16z)
 
 TODAY
 1. OpenAI shipped a new agent, then spent the week dealing with exits, lawyers and politics.
 2. Washington's new AI task force: who actually polices the labs?
 3. A viral robot stat, and the much smaller number underneath it.
 
-== THE BIG ONE · covered by 4 of 7 · 2-min read
+== THE BIG ONE · 2-min read
 OpenAI's whiplash week: a new agent out front, turmoil behind it
 SO WHAT: OpenAI is shipping at full speed toward an IPO while its own staff, its lawyers and its politics pull the other way. How it handles that will shape how it is regulated.
-At DevDay, OpenAI launched Dots, an AI agent with its own cloud computer and browser, plus a Decisions API and a new model, GPT-6.1 Sol. Bytes says every one copies a competitor's product. Exponential View calls Dots a rival to Grok Bot, and notes SpaceXAI owns dot.com, which redirects to the Grok Bot download page.
+At DevDay, OpenAI launched Dots, an AI agent with its own cloud computer and browser, plus a Decisions API and a new model, GPT-6.1 Sol. Dots goes straight at Grok Bot, and the obvious web address isn't OpenAI's: SpaceXAI owns dot.com, which redirects to the Grok Bot download page.
   Launched: Dots, the Decisions API and GPT-6.1 Sol, all announced at DevDay.
   Reported: Legal exposure is mounting after OpenAI alerted more than 100 organizations to unauthorized activity linked to its models. Its president also pulled the second half of a $50 million pledge to an anti-regulation super PAC after staff pushback.
-  Disputed: Why people are leaving. OpenAI says three safety researchers mishandled sensitive information. Semafor says staff are using their leverage over unregulated AI; another employee quit publicly Saturday, writing he had "decided that the current path is unacceptable."
+  Disputed: Why people are leaving. OpenAI says three safety researchers mishandled sensitive information. Others point to unease over unregulated AI: another employee quit publicly on Saturday in The Atlantic, writing he had "decided that the current path is unacceptable."
 OpenAI also reportedly hired former White House cyber official Thomas Lind to lead cyber and strategic risk policy. The three researchers and Saturday's resignation may be different people.
-From: Semafor, The Neuron, Bytes, Exponential View
 
-== THE SPLIT · covered by 2 of 7 · 2-min read
+== THE SPLIT · 2-min read
 Washington has a new AI task force. Who actually polices the labs?
 SO WHAT: The White House is organising around AI but leaving risk to the companies. The FTC is moving the other way, with subpoena-like demands due within weeks.
-On Sunday the White House announced a "Super Intelligence Force" led by the director of national intelligence and the FTC chairman, with the vice president, defense and Treasury secretaries and former AI czar David Sacks. It has 120 days to report on AI's risks and opportunities. It follows last week's executive safety pact, which Semafor calls morally binding and The Neuron calls voluntary.
+On Sunday the White House announced a "Super Intelligence Force" led by the director of national intelligence and the FTC chairman, with the vice president, defense and Treasury secretaries and former AI czar David Sacks. It has 120 days to report on AI's risks and opportunities. It follows last week's safety pact between the White House and AI's top executives: called morally binding, but voluntary.
   Side A - Let the companies handle it
-   * Officials say the task force will defer to firms on managing risk. (Semafor)
-   * Nvidia's Jensen Huang frames safety as an engineering problem, not a legal one, and he and Mark Zuckerberg argue the onus is on companies. (Semafor)
+   * Officials say the task force will defer to firms on managing risk.
+   * Nvidia's Jensen Huang frames safety as an engineering problem, not a legal one, and he and Mark Zuckerberg argue the onus is on companies.
   Side B - Use the laws on the books
-   * The FTC's probe into OpenAI, Anthropic and METR is ramping up: an FTC official confirmed subpoena-like demands are expected within weeks. (Semafor)
-   * Former FTC chair Lina Khan says regulators should rely on existing law, not on tech CEOs' manifestos and blog posts. (Semafor)
-From: Semafor, The Neuron
+   * The FTC's probe into OpenAI, Anthropic and METR is ramping up: an FTC official confirmed subpoena-like demands are expected within weeks.
+   * Former FTC chair Lina Khan says regulators should rely on existing law, not on tech CEOs' manifestos and blog posts.
 
-== HYPE CHECK · covered by 1 of 7 · 1-min read
+== HYPE CHECK · 1-min read
 "Robots can do 74% of physical tasks." Look closer.
-That was Superhuman AI's headline on a new Anthropic report about robots and jobs. The report's actual numbers are smaller, and the most important one is tiny.
+That headline made the rounds this weekend, about a new Anthropic report on robots and jobs. The report's actual numbers are smaller, and the most important one is tiny.
   In the report: Existing robots could handle work representing 34% of US working hours. Driving and warehouse jobs are most exposed; nursing and repair the least.
   The catch: Robots are cheaper than people for just 0.3% of tasks today, and that share may take 40 years to reach 10%.
-  Unexplained: The 74% in the headline appears nowhere in the newsletter's text.
-From: Superhuman AI
+  Unexplained: The 74% isn't explained anywhere in the coverage, and we couldn't trace it to the report.
 
 == EVERYTHING ELSE THAT MATTERED
-* Is the AI money real? Both camps got new numbers (2 of 7)
-  Bain says AI's compute demand will require $6 trillion a year in revenue by 2031, about $4.2 trillion of it from products that don't exist yet. The five biggest spenders put $416 billion into capital investment in 2025 (all capex, not just AI); analysts expect $777 billion this year and $1.1 trillion in 2027. a16z argues cheaper AI expands usage, while one asset manager's chief investment officer expects a correction: "I think it will come."
-  The Neuron · Semafor
-* Personal agents arrive, and they may come for your bank (4 of 7)
+* Is the AI money real? Both camps got new numbers
+  Bain says AI's compute demand will require $6 trillion a year in revenue by 2031, about $4.2 trillion of it from products that don't exist yet. The five biggest spenders put $416 billion into capital investment in 2025 (all capex, not just AI); analysts expect $777 billion this year and $1.1 trillion in 2027. a16z argues cheaper AI expands usage. Amundi's chief investment officer says a correction isn't imminent, but will come.
+* Personal agents arrive, and they may come for your bank
   Meta expanded Muse, including a small-business version and a Tamagotchi-like Muse Charm device; Manus shipped 2.0; OpenAI launched Dots. Apollo's Torsten Sløk warns of an "agentic bank run": if agents routinely sweep idle cash into higher-paying accounts, banks' funding costs rise.
-  The Neuron · Superhuman AI · Exponential View · Bytes https://open.substack.com/pub/exponentialview/p/ev-604
-* Starship finally reaches orbit, then cuts the trip short (2 of 7)
+* Starship finally reaches orbit, then cuts the trip short
   Flight 14 was Starship's first to reach orbit, deploying 26 Starlink V3 satellites, but it landed after about 90 minutes instead of a planned 10 hours. NASA is counting on Starship to land astronauts on the Moon, where the US wants a nuclear reactor by 2030 and Russia and China are aiming for 2036.
-  Superhuman AI · Semafor
-* Amazon answers the data-center backlash (2 of 7)
+* Amazon answers the data-center backlash
   Amazon will publish its energy and water use every year and spend more than $1 billion over five years on community college, trades training and home efficiency near its sites. AWS CEO Matt Garman also posted roughly 3,000 words rebutting what he called myths.
-  Semafor · The Neuron
-* Can AI be conscious? Three answers in one weekend (2 of 7)
-  A Google DeepMind paper proposes a five-level test; Exponential View's team scored today's AI between 0.003 and 0.083 out of 1. Anthropic has been consulting theologians on the question. Pope Leo XIV says algorithms lack "the spark of humanity."
-  Exponential View · The Neuron https://open.substack.com/pub/exponentialview/p/quick-weekend-reads-the-big-ai-questions
-* DoorDash gets cleared to run its own drone airline (1 of 7)
+* Can AI be conscious? Three answers in one weekend
+  A Google DeepMind paper proposes a five-level framework for judging machine consciousness; by its measure, today's AI does well on the first level and poorly on the rest. Anthropic has been consulting theologians on the question, per The New York Times. Pope Leo XIV says algorithms lack "the spark of humanity."
+* DoorDash gets cleared to run its own drone airline
   An FAA Part 135 certificate lets DoorDash operate its own fleet, DoorDash Air, mainly for orders 3 to 5 miles away. DoorDash says drone deliveries averaged 25 minutes in 2025.
-  Superhuman AI
 
 == TRY THIS TODAY: When an AI explanation loses you, change the format, not the question
 Andrej Karpathy's tricks for getting a better explanation: ask for a diagram first, ask for the answer "in HTML," or ask for it in ASD-STE100, the simplified English written for aerospace maintenance manuals. A looser version is to go "80% of the way" to that standard.
   "Explain [topic] about 80% of the way to ASD-STE100 Simplified Technical English. Start with a diagram, then the explanation."
 
 == FOR BUILDERS
-* Release: Pi 1.0. The minimalist TypeScript agent harness adds Pi Durable (cloud agents that survive crashes, still experimental per The Neuron), Codemode scripts in a QuickJS sandbox, and virtual models that route queries.
+* Release: Pi 1.0. The minimalist TypeScript agent harness adds Pi Durable (cloud agents that survive crashes, still experimental), Codemode scripts in a QuickJS sandbox, and virtual models that route queries.
 * Case study: Netflix lets a robot shrink its containers, and shares the failure. A 50% memory cut passed every check, ran fine for two weeks, then a traffic shift pushed retries past 60%. Cuts are now capped at 15% per step, with automatic reverts. https://netflixtechblog.medium.com/netflix-stratum-media-processing-automated-container-right-sizing-ddf9aa68a801
 * Case study: Netlify drops V8 isolates for Firecracker microVMs. Median warm invocations fell from 25–40 ms to about 5–6 ms. https://www.netlify.com/blog/edge-functions-firecracker-microvms/
 * Debate: Should Terraform run your developer platform? codecentric says no, since it has no runtime, and reaches for Kubernetes and Crossplane. Pinterest kept Terraform and fenced it in across hundreds of workspaces. https://medium.com/pinterest-engineering/securing-infrastructure-at-scale-introducing-pinterests-resource-provisioner-pipeline-rpp-8283bb12cbe5
 * Release: Microsoft's WSLC is generally available. Linux containers on Windows, open source in the microsoft/wsl repo. Docker Desktop has a first-party competitor. https://www.phoronix.com/news/Microsoft-WSLC-Linux-Containers
 * Web: Preact 11, Effect 4.0, MSW v3. Preact 11 lands after six-plus years with a new hydration system. Effect 4.0 is pitched as 5x smaller and 6.4x faster. MSW v3 is now pure ESM.
 * Repos: sofka, kor, iam-policy-autopilot. A Rust Kubernetes TUI (1,600 stars in three months); a Go tool that finds unused Kubernetes resources; and an AWS Labs CLI and MCP server that writes baseline IAM policies from the SDK calls in your code. https://github.com/nklmilojevic/sofka
-* Trending: moli: a headless browser for AI agents, in Rust. 6,113 stars by Saturday, on Changelog Nightly's hottest-repos list two nights running. https://changelog.com/nightly/
+* Trending: moli: a headless browser for AI agents, in Rust. 6,113 stars by Saturday, and among GitHub's hottest repos two nights running. https://github.com/lexmount/moli
 
 == CAREER SIGNAL
 Platform engineers rarely get a product manager, so their work only exists if they invent it. One essay suggests looking at postmortems, the cloud bill and your own toil, with the warning that your toil isn't your users'. Another argues the engineers thriving with AI agents are the ones willing to set their experience aside long enough to see a problem fresh.
+Read more: https://sujithjay.com/inventing-work
+Read more: https://sunilsadasivan.com/writing/first-principles-thinking/
 
 == THREE THINGS TO BRING UP AT DINNER
-* Singapore's government runs its own dating service, matching people with the Gale-Shapley algorithm. (Exponential View)
-* On a suggestion from Arnold Schwarzenegger, Figure retired its F.02 humanoids by training them to leap into a 75-ton vat of molten steel at a Finnish foundry. (Superhuman AI)
-* Researchers found gentoo penguins are actually four species, including the first new penguin species named in over 100 years. (Superhuman AI)
-* Scientists recreated a 10th-century eye salve of garlic, onion, bovine bile and wine; bacteria took far longer to develop resistance to it. (Superhuman AI)
+* Singapore's government runs its own dating service, matching people with the Gale-Shapley algorithm.
+* On a suggestion from Arnold Schwarzenegger, Figure retired its F.02 humanoids by training them to leap into a 75-ton vat of molten steel at a Finnish foundry.
+* Researchers found gentoo penguins are actually four species, including the first new penguin species named in over 100 years.
+* Scientists recreated a 10th-century eye salve of garlic, onion, bovine bile and wine; bacteria took far longer to develop resistance to it.
 
-HOW THIS ISSUE WAS MADE
-We read 13 issues from 7 newsletters (Friday 9:30 a.m. ET, Oct. 2, to early Monday, Oct. 5), merged the stories they share, stripped 37 sponsored and promotional blocks, and credited every fact to the newsletter that reported it. This sample was built before Monday's morning newsletters (TLDR and others) arrived. The reporting is theirs, so follow the links.
+HOW WE WORK
+Every fact in this issue is checked against its original source before it goes out. We separate what's confirmed from what's only claimed, flag it when reports disagree, call out hype, and carry no sponsored content.
 
 Unsubscribe: {{unsubscribe_url}} · Preferences: {{preferences_url}}
 {{postal_address}}

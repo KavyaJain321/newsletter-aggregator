@@ -22,7 +22,11 @@ python export.py tech.html finance.html
 - **Type:** Schibsted Grotesk (headlines, masthead) · Source Serif 4 (reading text) · IBM Plex Mono (numbers, labels, counts)
 - **Colour:** ink `#15181F`, paper `#E6E9EE`, card `#FFFFFF`, rule `#E3E6EB` · highlighter `#FFE45C` (only on "so what") · up `#0E8A5F` / down `#C8372D`
 - **Edition accents:** Tech `#D4471F` (vermilion) · Finance `#0A6B4C` (market green)
-- **Signature:** the **coverage strip** — one square per newsletter in the edition's roster, filled when that newsletter covered the story, plus "N of M". It encodes the product's core idea; keep it on every story.
+- **Signature (updated 2026-10-05):** the coverage strip, roster legend and newsletter credits are
+  **retired**: readers must never see which newsletters we read (instruction.md rule 11). The
+  signature is now the **"So what"** highlight, the **"What we actually know"** ledger
+  (confirmed / claimed / unclear), **splits** when reports disagree, **hype checks**, and a
+  checked-numbers promise in "How we work". The Oct 2 samples below predate this decision.
 
 ## Components (map 1:1 to the issue JSON in `instruction.md` Step 8)
 Masthead + meta line · roster legend · number of the day · "today" list · story (eyebrow tag, coverage

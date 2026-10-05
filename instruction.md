@@ -44,6 +44,14 @@ acceptance check passes.
    - tokens, `.env`, LLM call logs and the raw archive are gitignored;
    - test fixtures containing newsletter text are kept local only.
 10. **Finance copy contains no investment advice and no stock tips.** Politics is framed neutrally.
+11. **Readers never see which newsletters we read** (owner decision, 2026-10-05).
+    - No newsletter names, links, coverage counts ("5 of 12"), roster legends or "we read N issues".
+      Coverage and source newsletters stay **internal**: they drive ranking and keep every fact
+      traceable (rule 4), but the renderer never prints them. A test enforces it.
+    - Readers see credit to **primary sources** only: companies, agencies, named analysts, and
+      original reporting by major outlets (e.g. "per Freddie Mac", "Bain estimates").
+    - A newsletter's **own** opinion, analysis or exclusive reporting is **not republished**,
+      not even unattributed. Use only facts, with primary-source credit where needed.
 
 ---
 
@@ -151,7 +159,7 @@ Phase 2 extends it with `approved → scheduled → sent`.
       also includes weeklies from the last 7 days.
     - **Finance:** "After the Bell", about 17:00 ET on weekdays. Its window is "since the last
       Finance run".
-    - **Both:** each edition's roster order (this is the order of the coverage strip) and its slot
+    - **Both:** each edition's roster order (internal: coverage and ranking) and its slot
       template (see Step 7).
 - **LLM client** (`llm/client.py`):
   - One client interface over two transports: Ollama's **native** `/api/chat` (it exposes Qwen3's
@@ -314,7 +322,8 @@ Phase 2 extends it with `approved → scheduled → sent`.
   - `coverage_n` = number of distinct roster brands in the cluster;
   - `roster_n` = number of the edition's roster brands that delivered at least one issue in the run
     window (the "M" in "covered by N of M");
-  - `sources` = the covering brands in **roster order** (`editions.yaml`), which drives the coverage strip.
+  - `sources` = the covering brands in **roster order** (`editions.yaml`). Internal only: it drives
+    ranking and is never shown to readers (rule 11).
 - **6c. Conflicts** (`conflicts.py`):
   1. **In code:** compare facts that measure the same quantity across members (same entity and
      unit, different value). Example: Paramount deal size $81B vs $110B.
@@ -427,14 +436,14 @@ Phase 2 extends it with `approved → scheduled → sent`.
   - `issue.web.html`: the browser version;
   - `issue.pdf`: headless Chromium print as one continuous page, measured to the content height.
 - **Design elements:**
-  - the coverage strip (one square per roster source, filled when covered);
+  - ~~the coverage strip~~ removed (rule 11): readers never see coverage or sources;
   - the highlighted "so what";
   - the "What we actually know" ledger;
   - Split panels (2–3 sides);
   - badges and the markets table;
   - the movers grid, calendar and morsels;
   - the poll;
-  - the "How this issue was made" box.
+  - the "How we work" box (method only: checked numbers, confirmed vs claimed, no ads; never sources).
 - **Borrow:** the AI-Weekly-Digest table-based, Outlook-safe `newsletter.html.j2` as the skeleton
   (MIT), restyled to our design tokens:
   - type: Schibsted Grotesk / Source Serif 4 / IBM Plex Mono;

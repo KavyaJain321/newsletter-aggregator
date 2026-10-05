@@ -59,12 +59,31 @@ def test_text_is_escaped_and_only_bold_survives():
     assert "<b>bold</b> &amp; more" in html
 
 
-def test_coverage_strip_counts_match_roster():
-    issue = Issue.model_validate(_load(SAMPLES[0]))
-    html = render_html(issue)
-    n = len(issue.roster)
-    first = next(b for b in issue.blocks if getattr(b, "coverage", None))
-    assert f"<b>{len(first.coverage)} of {n}</b>" in html
+def _brand_words():
+    from pipeline.config.registry import load_registry
+    reg = load_registry()
+    return sorted({b.label for b in reg.brands.values()} | {"newsletter", "newsletters"}, key=len, reverse=True)
+
+
+@pytest.mark.parametrize("path", SAMPLES, ids=lambda p: p.stem)
+def test_readers_never_see_which_newsletters_we_read(path):
+    """Owner decision 2026-10-05: no source newsletter names, links, coverage counts or rosters."""
+    issue = Issue.model_validate(_load(path))
+    out = render_html(issue) + render_text(issue) + render_html(issue, preview=True)
+    leaked = [w for w in _brand_words() if re.search(r"\b" + re.escape(w) + r"\b", out, flags=re.I)]
+    assert leaked == []
+    for r in issue.roster:
+        if r.url:
+            assert str(r.url).rstrip("/") not in out
+    assert not re.search(r"\d+ of \d+", out)            # no "5 of 12" coverage counts
+
+
+def test_provenance_fields_are_never_rendered():
+    d = _load(SAMPLES[0])
+    d["blocks"][1]["sources"] = [{"name": "SECRET-SOURCE-NAME"}]
+    d["number_of_day"]["via"] = "SECRET-VIA"
+    out = render_html(Issue.model_validate(d))
+    assert "SECRET-SOURCE-NAME" not in out and "SECRET-VIA" not in out
 
 
 def test_oversized_email_is_refused():
