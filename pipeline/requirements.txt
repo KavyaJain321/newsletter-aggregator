@@ -5,3 +5,4 @@ pydantic>=2.7
 psycopg[binary]>=3.2,<4    # shared Supabase Postgres (DATABASE_URL)
 tzdata>=2024.1      # IANA time zones for zoneinfo on Windows
 pytest>=8.0
+pillow>=10           # design/export.py only (HTML -> single-page PDF)

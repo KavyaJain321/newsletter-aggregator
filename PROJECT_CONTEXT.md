@@ -235,6 +235,34 @@ This file is the durable memory across sessions and for the team. To keep it fre
 
 ## 14. SESSION LOG (append newest at top)
 
+### Session 2026-10-05 — Send-ready sample issues (Tech + Markets) and the real render step
+- Owner asked for publish-ready samples showing how our newsletter looks, what it provides and its
+  speciality. Built **Tech Mon Oct 5** (13 issues, 7 newsletters) and **Markets Mon Oct 5 "week
+  ahead"** (16 issues, 12 newsletters: Friday's close + weekend reads + calendar) from the live
+  Supabase store. Two research agents built story inventories with verbatim evidence for every
+  number. A line-by-line fact-check removed claims the sources did not support (e.g. invented job
+  titles, an "ever" superlative, coverage counted for newsletters that never covered the story).
+- Started Step 8/10 for real:
+  - `pipeline/compose/schema.py` is the strict Issue JSON contract the LLM must produce.
+    Coverage must come from the roster, and unknown fields are rejected.
+  - `pipeline/render/email.py` renders it to email-safe HTML: tables, inline styles, a mobile
+    media query and MSO fixes. It also produces the plain-text part and ESP merge tags, and
+    enforces the 102 KB Gmail clip limit.
+  - Samples: `design/issues/*.json` -> `design/samples/*_2026-10-05.{email.html,txt,html,pdf}`.
+    The emails are 66 KB (Tech) and 87 KB (Finance). Verified at a 375px phone width with no overflow.
+- **Speciality as shown in the samples:**
+  - a coverage strip showing which newsletters covered each story;
+  - "So what" lines;
+  - "What we actually know" ledgers (confirmed / claimed / unclear);
+  - splits where sources disagree;
+  - hype checks;
+  - "Sources differ" badges;
+  - zero ads (37 + 31 stripped);
+  - a "how this issue was made" section;
+  - Markets adds Friday's close, movers, the week-ahead calendar, a take worth stealing and a term of the day.
+- Tests: 208 unit + 6 integration.
+- Next: Step 2 (classify), then Step 3 (structure layer).
+
 ### Session 2026-10-04 (night) — Storage moved to Supabase: the four-layer content store
 - Owner decision: **no local database**. Everything goes to one Supabase Postgres project (Mumbai,
   owner's account) so every teammate works on the same data.

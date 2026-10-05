@@ -1,0 +1,282 @@
+{
+  "edition": "finance",
+  "edition_label": "Markets",
+  "date_label": "Monday, October 5, 2026",
+  "issue_no": "002",
+  "subject": "Bonds blink, jobs flop, the Fed exhales 📉 Your week ahead",
+  "preheader": "Plus: Anthropic's IPO in four numbers, and why the 10-year runs everything now",
+  "tagline": "We read the money newsletters. You read this.",
+  "send_time": "7:00 AM",
+  "roster": [
+    {"id": "snacks", "label": "Snacks", "url": "https://sherwood.news"},
+    {"id": "axios_markets", "label": "Axios Markets", "url": "https://www.axios.com"},
+    {"id": "entrypoint", "label": "EntryPoint", "url": "https://sherwood.news"},
+    {"id": "daily_upside", "label": "The Daily Upside", "url": "https://www.thedailyupside.com"},
+    {"id": "the_hustle", "label": "The Hustle", "url": "https://thehustle.co"},
+    {"id": "finks_daily", "label": "Finks Daily"},
+    {"id": "brew_markets", "label": "Brew Markets", "url": "https://www.morningbrew.com"},
+    {"id": "businessweek_daily", "label": "Businessweek Daily", "url": "https://www.bloomberg.com/businessweek"},
+    {"id": "morning_brew", "label": "Morning Brew", "url": "https://www.morningbrew.com"},
+    {"id": "the_diff", "label": "The Diff", "url": "https://www.thediff.co"},
+    {"id": "net_interest", "label": "Net Interest", "url": "https://www.netinterest.co"},
+    {"id": "doomberg", "label": "Doomberg", "url": "https://doomberg.substack.com"}
+  ],
+  "issues_read": 16,
+  "read_minutes": 7,
+  "ads_removed": 31,
+  "number_of_day": {
+    "value": "29,000",
+    "text": "Jobs the US added in September, against roughly 84,000 expected. July and August were revised down by a combined 60,000, and wage growth slowed to 3%, the weakest in five years.",
+    "via": "Brew Markets, on Friday's jobs report"
+  },
+  "today": [
+    "The bond market just had its roughest quarter in decades. Three theories on why.",
+    "A weak jobs report all but took an October rate hike off the table. Almost.",
+    "Anthropic's IPO, in four numbers."
+  ],
+  "blocks": [
+    {
+      "kind": "markets",
+      "label": "Friday's close",
+      "asof": "Friday, Oct. 2 · 4:00 PM ET (bitcoin 4:30 PM)",
+      "rows": [
+        {"name": "S&P 500", "value": "7,722.94", "change": "+0.74%", "direction": "up"},
+        {"name": "Nasdaq", "value": "27,190.86", "change": "+1.19%", "direction": "up"},
+        {"name": "Dow", "value": "51,177.44", "change": "+0.49%", "direction": "up"},
+        {"name": "10-year Treasury", "value": "5.277%", "change": "+4.0 bp", "direction": "up"},
+        {"name": "Bitcoin", "value": "$84,327.58", "change": "-0.33%", "direction": "down"},
+        {"name": "Oil (per barrel)", "value": "$91.47", "change": "-1.51%", "direction": "down"}
+      ],
+      "movers": [
+        {"ticker": "Synaptics", "change": "+14.08%", "direction": "up", "why": "Cut the price of its onsemi merger to $5.7 billion in cash; onsemi rose 6.01%."},
+        {"ticker": "HPE", "change": "+7.39%", "direction": "up", "why": "Strong long-term targets on AI demand."},
+        {"ticker": "SpaceX", "change": "+7.35%", "direction": "up", "why": "Three successful launches, including astronauts and a US intelligence payload."},
+        {"ticker": "Tesla", "change": "+4.65%", "direction": "up", "why": "Third-quarter deliveries beat expectations."},
+        {"ticker": "Nvidia", "change": "+1.34%", "direction": "up", "why": "A fresh all-time high and a $5.7 trillion market value."},
+        {"ticker": "Nike", "change": "-3.64%", "direction": "down", "why": "Falling revenue, weak guidance and more layoffs."},
+        {"ticker": "Rivian", "change": "-3.12%", "direction": "down", "why": "Deliveries jumped 46%, but it held rather than raised its outlook."},
+        {"ticker": "Seagate", "change": "-10.21%", "direction": "down", "why": "Reports that Toshiba plans to double capacity; Western Digital fell 10.22%."}
+      ],
+      "note": "Stocks rose on the soft jobs report; the Nasdaq touched a record intraday before easing. Brew Markets doesn't name the oil benchmark: it says Brent rose while US crude fell.",
+      "sources": ["Brew Markets"]
+    },
+    {
+      "kind": "story",
+      "tag": "The big one",
+      "coverage": ["axios_markets", "entrypoint", "daily_upside", "finks_daily", "brew_markets"],
+      "read_time": "3-min read",
+      "headline": "The 10-year Treasury now runs the market. Here's why it won't sit still.",
+      "size": "lead",
+      "sowhat": "Mortgages, stock valuations and the cost of funding the AI build-out all price off the 10-year. When it moves this fast, everything else reprices with it.",
+      "paragraphs": [
+        "On Thursday the 10-year yield touched 5.34%, its highest since 2002, before buyers stepped in and it closed near 5.23%. It rose almost 90 basis points in the third quarter, its biggest quarterly jump in more than 25 years. The 30-year mortgage rate followed, to 7.28% from 7.03% a week earlier, per Freddie Mac.",
+        "Friday's weak jobs report briefly lifted bonds, but yields drifted higher again and the 10-year ended the week at 5.277%. The newsletters agree on the move. They disagree on the cause."
+      ],
+      "split": [
+        {
+          "kicker": "Theory 1",
+          "title": "It's plumbing",
+          "items": [
+            {"text": "When rates rise fast, holders of mortgage bonds must re-hedge, often by selling Treasuries. One strategist calls this the main technical driver.", "cite": "Axios Markets"},
+            {"text": "Hedge funds may be unwinding the basis trade, though Axios says the evidence isn't clear yet.", "cite": "Axios Markets"}
+          ]
+        },
+        {
+          "kicker": "Theory 2",
+          "title": "It's Japan",
+          "items": [
+            {"text": "The Bank of Japan raised rates to 1.25%, a 31-year high, and Japan's 10-year yield hit 3.1%. Japan holds about $1.1 trillion of Treasuries, 12% of foreign-held US debt.", "cite": "The Daily Upside"},
+            {"text": "Ed Yardeni's read: the yen carry trade is unwinding.", "cite": "The Daily Upside"}
+          ]
+        },
+        {
+          "kicker": "Theory 3",
+          "title": "It's everyone borrowing",
+          "items": [
+            {"text": "As more AI spending is financed with debt, it competes with the government for borrowers, says Goldman's George Cole.", "cite": "The Daily Upside"},
+            {"text": "The war in Iran, rising deficits and strong US growth are all pushing rates up.", "cite": "Axios Markets"}
+          ]
+        }
+      ],
+      "after": [
+        "Not everyone sees a crisis. The Daily Upside reads Thursday's rebound as proof Treasuries are still a haven, and money managers are pitching the classic 60/40 portfolio again. Axios is less calm, quoting Yesha Yadav: the problem \"has hit the fan.\" France's budget didn't help, with its bond spread over Germany at the widest since the euro crisis."
+      ],
+      "sources": [
+        {"name": "Axios Markets", "url": "https://www.axios.com"},
+        {"name": "The Daily Upside", "url": "https://www.thedailyupside.com"},
+        {"name": "EntryPoint", "url": "https://sherwood.news"},
+        {"name": "Finks Daily"},
+        {"name": "Brew Markets", "url": "https://www.morningbrew.com"}
+      ]
+    },
+    {
+      "kind": "story",
+      "tag": "The split",
+      "tag_style": "outline",
+      "coverage": ["entrypoint", "daily_upside", "finks_daily", "brew_markets", "businessweek_daily"],
+      "read_time": "2-min read",
+      "headline": "Is the October rate hike dead?",
+      "badges": ["differ"],
+      "sowhat": "A week ago markets were pricing in another hike. Now they expect a pause, and Wednesday's Fed minutes are the next test.",
+      "paragraphs": [
+        "September payrolls rose by just 29,000. Unemployment ticked up to 4.2% from 4.1%, and earlier months were revised down by 60,000. Government, temp help and information services shed jobs, while healthcare and construction added them. Futures now put the odds of a hold at the next meeting at 77.3%, after pricing about 70% odds of a hike a week earlier."
+      ],
+      "split": [
+        {
+          "kicker": "Side A",
+          "title": "Off the table",
+          "items": [
+            {"text": "Jefferies' Thomas Simons called the report the final blow for an October hike.", "cite": "Brew Markets"},
+            {"text": "Vice Chairs Philip Jefferson and Michelle Bowman signalled the Fed has room to wait; Jefferson said it may need more time.", "cite": "EntryPoint · The Daily Upside"},
+            {"text": "Wednesday's PCE inflation reading came in cooler than expected, at 3.4%.", "cite": "Brew Markets"}
+          ]
+        },
+        {
+          "kicker": "Side B",
+          "title": "Not so fast",
+          "items": [
+            {"text": "The Fed's Goolsbee says both a hike and a pause remain on the table for October.", "cite": "Brew Markets"},
+            {"text": "Last month's Fed projections still showed at least one more hike as likely this year, and futures give December a 66.7% chance.", "cite": "Brew Markets"}
+          ]
+        }
+      ],
+      "note": "Sources differ on what economists expected: about 84,000 jobs (Brew Markets) or 90,000 (EntryPoint's Friday-morning preview).",
+      "sources": [
+        {"name": "Brew Markets", "url": "https://www.morningbrew.com"},
+        {"name": "EntryPoint", "url": "https://sherwood.news"},
+        {"name": "The Daily Upside", "url": "https://www.thedailyupside.com"},
+        {"name": "Finks Daily"},
+        {"name": "Businessweek Daily", "url": "https://www.bloomberg.com/businessweek"}
+      ]
+    },
+    {
+      "kind": "story",
+      "tag": "Deal watch",
+      "coverage": ["snacks", "entrypoint", "daily_upside", "finks_daily"],
+      "read_time": "2-min read",
+      "headline": "Anthropic's IPO, in four numbers",
+      "badges": ["reported"],
+      "sowhat": "Public investors would finally get to own one of the AI labs that has been moving their stocks, at a price set while it still loses billions.",
+      "paragraphs": [
+        "Bloomberg reports the Claude maker is aiming to go public before Thanksgiving, possibly as soon as the week of Nov. 9. The figures below come from reporting on its prospectus, not from Anthropic."
+      ],
+      "ledger": {
+        "title": "The four numbers",
+        "rows": [
+          {"status": "claimed", "label": "$4.6B", "text": "2025 revenue, about 12 times the year before."},
+          {"status": "claimed", "label": "$42B", "text": "2025 net loss, with an $8 billion operating loss. Compute alone was $7.33 billion, over half of operating costs."},
+          {"status": "claimed", "label": "$518B", "text": "Planned spending on cloud. Separately, Broadcom is financing up to $42 billion of custom chip leases."},
+          {"status": "unclear", "label": "$1.8–2T", "text": "The valuation range Snacks reports; The Daily Upside rounds it to $2 trillion."}
+        ]
+      },
+      "after": [
+        "Snacks argues investors have spent years watching a private Anthropic hurt public software stocks with no way to own the winner, and that frustration could make them overlook the price. EntryPoint expects a listing to speed up selling of this year's losers and of stocks seen as tied to Anthropic."
+      ],
+      "sources": [
+        {"name": "Snacks", "url": "https://sherwood.news"},
+        {"name": "The Daily Upside", "url": "https://www.thedailyupside.com"},
+        {"name": "EntryPoint", "url": "https://sherwood.news"},
+        {"name": "Finks Daily"}
+      ]
+    },
+    {
+      "kind": "hits",
+      "items": [
+        {
+          "coverage": ["finks_daily", "brew_markets", "businessweek_daily"],
+          "badges": ["differ"],
+          "headline": "Paramount and Warner Bros. Discovery close on Tuesday",
+          "text": "The combined company will be renamed Skydance. Sources disagree on the deal's size: $81 billion (Brew Markets) or $110 billion (Businessweek). Paramount shares fell 9.6% Thursday as investors focused on the debt behind it.",
+          "sources": ["Businessweek Daily", "Brew Markets", "Finks Daily"]
+        },
+        {
+          "coverage": ["axios_markets", "brew_markets", "businessweek_daily"],
+          "headline": "The G7 opens the oil taps",
+          "text": "The G7 and partners will release up to 100 million barrels of emergency oil and diesel. Brent slipped below $100 on Friday morning, as 10,000 more sailors and Marines and another carrier headed to the Persian Gulf.",
+          "sources": ["Businessweek Daily", "Brew Markets", "Axios Markets"]
+        },
+        {
+          "coverage": ["daily_upside", "businessweek_daily", "doomberg"],
+          "badges": ["paywalled"],
+          "headline": "Washington eyes diesel exports",
+          "text": "With diesel at record prices, Energy Secretary Chris Wright has reportedly sounded out refiners on voluntarily limiting exports. Doomberg's take: every refinery runs with its government's consent, and that consent is always conditional.",
+          "sources": ["Doomberg", "Businessweek Daily", "The Daily Upside"],
+          "link": {"text": "Doomberg (preview)", "url": "https://open.substack.com/pub/doomberg/p/straw-clutching"}
+        },
+        {
+          "coverage": ["axios_markets", "entrypoint"],
+          "headline": "The index looks fine. The average stock doesn't.",
+          "text": "Going into Friday, the equal-weight S&P 500 was on track for a seventh straight losing week, a streak seen only twice before (both runs ended in July 2002 and May 2022). Meanwhile the regular S&P was down just 1.5% over the stretch and within 2% of its record.",
+          "sources": ["EntryPoint", "Axios Markets"]
+        },
+        {
+          "coverage": ["entrypoint", "daily_upside", "finks_daily", "brew_markets"],
+          "headline": "AI as tailwind, AI as headwind",
+          "text": "Accenture jumped about 16% Thursday after beating forecasts, which The Daily Upside credits to AI work rather than in spite of it. Nike went the other way: it guided to a high single-digit sales decline this year, against the Street's expected 2.4% dip.",
+          "sources": ["The Daily Upside", "Finks Daily", "EntryPoint", "Brew Markets"]
+        },
+        {
+          "coverage": ["finks_daily"],
+          "headline": "America's quiet copper hoard",
+          "text": "The US has pulled as much as 2 million tons of copper onshore, per BMO, without announcing a single tariff on the refined metal. Deutsche Bank expects the US and China to hold about 70% of global inventories by year-end.",
+          "sources": ["Finks Daily"]
+        }
+      ]
+    },
+    {
+      "kind": "callout",
+      "label": "Take worth stealing",
+      "title": "Every boom brings a financial-engineering boom",
+      "paragraphs": [
+        "Net Interest cites estimates putting AI infrastructure spending through 2030 at $7.6 to $8 trillion. KKR sees about $1.7 trillion of financing, leaving a $6.3 trillion gap, and creative structures are rushing to fill it: Amazon is reportedly weighing putting about $8 billion of Nvidia chips into a special-purpose vehicle.",
+        "For scale, America's railroad boom of 1870 to 1890 ran at 2.24% of GDP; AI capex could reach 3.63% through 2032. The structures that fund a boom also make it harder to see where the risk is piling up."
+      ],
+      "source": "Net Interest (paywalled preview) · Brew Markets",
+      "link": {"text": "Read Net Interest", "url": "https://open.substack.com/pub/netinterest/p/the-art-of-doing-financial-engineering"}
+    },
+    {
+      "kind": "callout",
+      "label": "Term of the day",
+      "title": "Mortgage convexity",
+      "paragraphs": [
+        "When rates rise fast, investors holding mortgage bonds have to change how they hedge, often by selling Treasuries. That selling pushes yields higher still, which can force more selling. One JPMorgan strategist's summary: left alone, it feeds on itself."
+      ],
+      "source": "Axios Markets"
+    },
+    {
+      "kind": "prose",
+      "label": "Retail flow",
+      "paragraphs": [
+        "Small investors went long on bonds: retail traders piled into long-dated Treasury ETFs in September, and the iShares 20+ Year Treasury fund saw its biggest inflows ever, per JPMorgan. In stocks, Robinhood traders sold into Thursday's photonics rally, with Coherent and Fabrinet dumped on heavy volume. At Robinhood, traders have started pairing tokenized stocks with memecoins."
+      ],
+      "sources": [
+        {"name": "EntryPoint", "url": "https://sherwood.news"},
+        {"name": "The Daily Upside", "url": "https://www.thedailyupside.com"},
+        {"name": "Brew Markets", "url": "https://www.morningbrew.com"}
+      ]
+    },
+    {
+      "kind": "compact",
+      "label": "The week ahead",
+      "items": [
+        {"key": "Mon · Oct 5", "title": "Services PMI.", "text": "Japan's Prime Minister Sanae Takaichi addresses parliament, with bond markets watching her fiscal plans.", "source": "Brew Markets · The Daily Upside"},
+        {"key": "Tue · Oct 6", "title": "Paramount–WBD deal closes.", "text": "Earnings: Constellation Brands (after the close), Lamb Weston. Fed's Williams and Logan speak.", "source": "Businessweek Daily · EntryPoint · Brew Markets"},
+        {"key": "Wed · Oct 7", "title": "Fed minutes, 2 PM ET.", "text": "The September meeting, when the Fed last hiked. Earnings: Applied Digital, Levi Strauss.", "source": "EntryPoint · Brew Markets"},
+        {"key": "Thu · Oct 8", "title": "Jobless claims and wholesale trade.", "text": "Earnings: PepsiCo (before the open). St. Louis Fed's Musalem speaks at 1:40 PM ET.", "source": "EntryPoint · Brew Markets"},
+        {"key": "Fri · Oct 9", "title": "Consumer sentiment (University of Michigan).", "text": "Earnings: Delta, before the open.", "source": "EntryPoint · Brew Markets"},
+        {"key": "Coming up", "title": "Bank earnings, September CPI and retail sales by mid-month.", "text": "Fed decision at the end of October; Anthropic's IPO as soon as the week of Nov. 9 (reported).", "source": "EntryPoint · Brew Markets · The Daily Upside"}
+      ]
+    },
+    {
+      "kind": "morsels",
+      "items": [
+        {"text": "A former HSBC executive was banned for life after dodging nearly £6,000 in train fares by \"doughnutting\" his tickets.", "source": "The Daily Upside"},
+        {"text": "China's share of the world caviar market went from about 14% in 2012 to 43% in 2024. In the 1800s, bars handed caviar out free.", "source": "Morning Brew"},
+        {"text": "Half of Gen Z now starts their coffee habit with cold drinks, according to Nestlé.", "source": "The Hustle"},
+        {"text": "Asking shoppers for a charity donation at checkout makes them more likely to avoid coming back.", "source": "Brew Markets"}
+      ]
+    }
+  ],
+  "made": "We read 16 issues from 12 newsletters (Thursday evening, Oct. 1 – Sunday, Oct. 4), merged the stories they share, stripped 31 sponsored and promotional blocks, and credited every number to the newsletter that reported it. Friday's prices are Brew Markets' closing data. Nothing here is investment advice. The reporting is theirs, so follow the links.",
+  "window_note": "Sample issue · built from real newsletter issues received Oct. 1–4, 2026 · Not investment advice."
+}

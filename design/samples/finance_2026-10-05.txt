@@ -1,0 +1,121 @@
+TWENTY TO ONE · MARKETS
+Monday, October 5, 2026 · No. 002
+We read the money newsletters. You read this.
+12 newsletters · 16 issues -> 1 · 7-min read
+
+NUMBER OF THE DAY: 29,000
+Jobs the US added in September, against roughly 84,000 expected. July and August were revised down by a combined 60,000, and wage growth slowed to 3%, the weakest in five years.
+(Brew Markets, on Friday's jobs report)
+
+TODAY
+1. The bond market just had its roughest quarter in decades. Three theories on why.
+2. A weak jobs report all but took an October rate hike off the table. Almost.
+3. Anthropic's IPO, in four numbers.
+
+== FRIDAY'S CLOSE (Friday, Oct. 2 · 4:00 PM ET (bitcoin 4:30 PM))
+  S&P 500: 7,722.94 +0.74%
+  Nasdaq: 27,190.86 +1.19%
+  Dow: 51,177.44 +0.49%
+  10-year Treasury: 5.277% +4.0 bp
+  Bitcoin: $84,327.58 -0.33%
+  Oil (per barrel): $91.47 -1.51%
+  Synaptics +14.08%: Cut the price of its onsemi merger to $5.7 billion in cash; onsemi rose 6.01%.
+  HPE +7.39%: Strong long-term targets on AI demand.
+  SpaceX +7.35%: Three successful launches, including astronauts and a US intelligence payload.
+  Tesla +4.65%: Third-quarter deliveries beat expectations.
+  Nvidia +1.34%: A fresh all-time high and a $5.7 trillion market value.
+  Nike -3.64%: Falling revenue, weak guidance and more layoffs.
+  Rivian -3.12%: Deliveries jumped 46%, but it held rather than raised its outlook.
+  Seagate -10.21%: Reports that Toshiba plans to double capacity; Western Digital fell 10.22%.
+
+== THE BIG ONE · covered by 5 of 12 · 3-min read
+The 10-year Treasury now runs the market. Here's why it won't sit still.
+SO WHAT: Mortgages, stock valuations and the cost of funding the AI build-out all price off the 10-year. When it moves this fast, everything else reprices with it.
+On Thursday the 10-year yield touched 5.34%, its highest since 2002, before buyers stepped in and it closed near 5.23%. It rose almost 90 basis points in the third quarter, its biggest quarterly jump in more than 25 years. The 30-year mortgage rate followed, to 7.28% from 7.03% a week earlier, per Freddie Mac.
+Friday's weak jobs report briefly lifted bonds, but yields drifted higher again and the 10-year ended the week at 5.277%. The newsletters agree on the move. They disagree on the cause.
+  Theory 1 - It's plumbing
+   * When rates rise fast, holders of mortgage bonds must re-hedge, often by selling Treasuries. One strategist calls this the main technical driver. (Axios Markets)
+   * Hedge funds may be unwinding the basis trade, though Axios says the evidence isn't clear yet. (Axios Markets)
+  Theory 2 - It's Japan
+   * The Bank of Japan raised rates to 1.25%, a 31-year high, and Japan's 10-year yield hit 3.1%. Japan holds about $1.1 trillion of Treasuries, 12% of foreign-held US debt. (The Daily Upside)
+   * Ed Yardeni's read: the yen carry trade is unwinding. (The Daily Upside)
+  Theory 3 - It's everyone borrowing
+   * As more AI spending is financed with debt, it competes with the government for borrowers, says Goldman's George Cole. (The Daily Upside)
+   * The war in Iran, rising deficits and strong US growth are all pushing rates up. (Axios Markets)
+Not everyone sees a crisis. The Daily Upside reads Thursday's rebound as proof Treasuries are still a haven, and money managers are pitching the classic 60/40 portfolio again. Axios is less calm, quoting Yesha Yadav: the problem "has hit the fan." France's budget didn't help, with its bond spread over Germany at the widest since the euro crisis.
+From: Axios Markets, The Daily Upside, EntryPoint, Finks Daily, Brew Markets
+
+== THE SPLIT · covered by 5 of 12 · 2-min read
+Is the October rate hike dead?
+SO WHAT: A week ago markets were pricing in another hike. Now they expect a pause, and Wednesday's Fed minutes are the next test.
+September payrolls rose by just 29,000. Unemployment ticked up to 4.2% from 4.1%, and earlier months were revised down by 60,000. Government, temp help and information services shed jobs, while healthcare and construction added them. Futures now put the odds of a hold at the next meeting at 77.3%, after pricing about 70% odds of a hike a week earlier.
+  Side A - Off the table
+   * Jefferies' Thomas Simons called the report the final blow for an October hike. (Brew Markets)
+   * Vice Chairs Philip Jefferson and Michelle Bowman signalled the Fed has room to wait; Jefferson said it may need more time. (EntryPoint · The Daily Upside)
+   * Wednesday's PCE inflation reading came in cooler than expected, at 3.4%. (Brew Markets)
+  Side B - Not so fast
+   * The Fed's Goolsbee says both a hike and a pause remain on the table for October. (Brew Markets)
+   * Last month's Fed projections still showed at least one more hike as likely this year, and futures give December a 66.7% chance. (Brew Markets)
+From: Brew Markets, EntryPoint, The Daily Upside, Finks Daily, Businessweek Daily
+
+== DEAL WATCH · covered by 4 of 12 · 2-min read
+Anthropic's IPO, in four numbers
+SO WHAT: Public investors would finally get to own one of the AI labs that has been moving their stocks, at a price set while it still loses billions.
+Bloomberg reports the Claude maker is aiming to go public before Thanksgiving, possibly as soon as the week of Nov. 9. The figures below come from reporting on its prospectus, not from Anthropic.
+  $4.6B: 2025 revenue, about 12 times the year before.
+  $42B: 2025 net loss, with an $8 billion operating loss. Compute alone was $7.33 billion, over half of operating costs.
+  $518B: Planned spending on cloud. Separately, Broadcom is financing up to $42 billion of custom chip leases.
+  $1.8–2T: The valuation range Snacks reports; The Daily Upside rounds it to $2 trillion.
+Snacks argues investors have spent years watching a private Anthropic hurt public software stocks with no way to own the winner, and that frustration could make them overlook the price. EntryPoint expects a listing to speed up selling of this year's losers and of stocks seen as tied to Anthropic.
+From: Snacks, The Daily Upside, EntryPoint, Finks Daily
+
+== EVERYTHING ELSE THAT MATTERED
+* Paramount and Warner Bros. Discovery close on Tuesday (3 of 12)
+  The combined company will be renamed Skydance. Sources disagree on the deal's size: $81 billion (Brew Markets) or $110 billion (Businessweek). Paramount shares fell 9.6% Thursday as investors focused on the debt behind it.
+  Businessweek Daily · Brew Markets · Finks Daily
+* The G7 opens the oil taps (3 of 12)
+  The G7 and partners will release up to 100 million barrels of emergency oil and diesel. Brent slipped below $100 on Friday morning, as 10,000 more sailors and Marines and another carrier headed to the Persian Gulf.
+  Businessweek Daily · Brew Markets · Axios Markets
+* Washington eyes diesel exports (3 of 12)
+  With diesel at record prices, Energy Secretary Chris Wright has reportedly sounded out refiners on voluntarily limiting exports. Doomberg's take: every refinery runs with its government's consent, and that consent is always conditional.
+  Doomberg · Businessweek Daily · The Daily Upside https://open.substack.com/pub/doomberg/p/straw-clutching
+* The index looks fine. The average stock doesn't. (2 of 12)
+  Going into Friday, the equal-weight S&P 500 was on track for a seventh straight losing week, a streak seen only twice before (both runs ended in July 2002 and May 2022). Meanwhile the regular S&P was down just 1.5% over the stretch and within 2% of its record.
+  EntryPoint · Axios Markets
+* AI as tailwind, AI as headwind (4 of 12)
+  Accenture jumped about 16% Thursday after beating forecasts, which The Daily Upside credits to AI work rather than in spite of it. Nike went the other way: it guided to a high single-digit sales decline this year, against the Street's expected 2.4% dip.
+  The Daily Upside · Finks Daily · EntryPoint · Brew Markets
+* America's quiet copper hoard (1 of 12)
+  The US has pulled as much as 2 million tons of copper onshore, per BMO, without announcing a single tariff on the refined metal. Deutsche Bank expects the US and China to hold about 70% of global inventories by year-end.
+  Finks Daily
+
+== TAKE WORTH STEALING: Every boom brings a financial-engineering boom
+Net Interest cites estimates putting AI infrastructure spending through 2030 at $7.6 to $8 trillion. KKR sees about $1.7 trillion of financing, leaving a $6.3 trillion gap, and creative structures are rushing to fill it: Amazon is reportedly weighing putting about $8 billion of Nvidia chips into a special-purpose vehicle.
+For scale, America's railroad boom of 1870 to 1890 ran at 2.24% of GDP; AI capex could reach 3.63% through 2032. The structures that fund a boom also make it harder to see where the risk is piling up.
+  Read: Read Net Interest https://open.substack.com/pub/netinterest/p/the-art-of-doing-financial-engineering
+
+== TERM OF THE DAY: Mortgage convexity
+When rates rise fast, investors holding mortgage bonds have to change how they hedge, often by selling Treasuries. That selling pushes yields higher still, which can force more selling. One JPMorgan strategist's summary: left alone, it feeds on itself.
+
+== RETAIL FLOW
+Small investors went long on bonds: retail traders piled into long-dated Treasury ETFs in September, and the iShares 20+ Year Treasury fund saw its biggest inflows ever, per JPMorgan. In stocks, Robinhood traders sold into Thursday's photonics rally, with Coherent and Fabrinet dumped on heavy volume. At Robinhood, traders have started pairing tokenized stocks with memecoins.
+
+== THE WEEK AHEAD
+* Mon · Oct 5: Services PMI. Japan's Prime Minister Sanae Takaichi addresses parliament, with bond markets watching her fiscal plans.
+* Tue · Oct 6: Paramount–WBD deal closes. Earnings: Constellation Brands (after the close), Lamb Weston. Fed's Williams and Logan speak.
+* Wed · Oct 7: Fed minutes, 2 PM ET. The September meeting, when the Fed last hiked. Earnings: Applied Digital, Levi Strauss.
+* Thu · Oct 8: Jobless claims and wholesale trade. Earnings: PepsiCo (before the open). St. Louis Fed's Musalem speaks at 1:40 PM ET.
+* Fri · Oct 9: Consumer sentiment (University of Michigan). Earnings: Delta, before the open.
+* Coming up: Bank earnings, September CPI and retail sales by mid-month. Fed decision at the end of October; Anthropic's IPO as soon as the week of Nov. 9 (reported).
+
+== THREE THINGS TO BRING UP AT DINNER
+* A former HSBC executive was banned for life after dodging nearly £6,000 in train fares by "doughnutting" his tickets. (The Daily Upside)
+* China's share of the world caviar market went from about 14% in 2012 to 43% in 2024. In the 1800s, bars handed caviar out free. (Morning Brew)
+* Half of Gen Z now starts their coffee habit with cold drinks, according to Nestlé. (The Hustle)
+* Asking shoppers for a charity donation at checkout makes them more likely to avoid coming back. (Brew Markets)
+
+HOW THIS ISSUE WAS MADE
+We read 16 issues from 12 newsletters (Thursday evening, Oct. 1 – Sunday, Oct. 4), merged the stories they share, stripped 31 sponsored and promotional blocks, and credited every number to the newsletter that reported it. Friday's prices are Brew Markets' closing data. Nothing here is investment advice. The reporting is theirs, so follow the links.
+
+Unsubscribe: {{unsubscribe_url}} · Preferences: {{preferences_url}}
+{{postal_address}}

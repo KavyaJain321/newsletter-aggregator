@@ -33,7 +33,30 @@ try-this · builders list · morsels · poll · "How this issue was made" · foo
 
 **Badges:** `Reported` (single-source/leaked) · `Sources differ` (conflict) · `Self-reported` (vendor claim) · `Paywalled`.
 
-## Not yet email-safe
+## Send-ready samples (Oct 5, 2026): the real render step
+`issues/*.json` are complete issues in the compose contract (`pipeline/compose/schema.py`, the
+JSON the compose step must output). `build_email.py` renders them with the pipeline's own
+renderer (`pipeline/render/email.py`):
+
+```bash
+.venv/Scripts/python design/build_email.py design/issues/tech_2026-10-05.json design/issues/finance_2026-10-05.json
+```
+| Output (`samples/`) | What |
+|---|---|
+| `<name>.email.html` | The email as sent: nested tables, every style inline, 640px, mobile stacking via one media query, MSO fixes, hidden preheader, under 102 KB (Tech 66 KB, Finance 87 KB) |
+| `<name>.txt` | Plain-text alternative part |
+| `<name>.html` / `.pdf` | Review page with the inbox row on top, and its single-page PDF |
+
+ESP merge tags to fill at send time: `{{web_url}}`, `{{unsubscribe_url}}`, `{{preferences_url}}`,
+`{{subscribe_url}}`, `{{feedback_url}}`, `{{postal_address}}`.
+
+- **Tech, Monday Oct 5:** 13 issues from 7 newsletters, Friday 9:30 ET to early Monday.
+- **Markets, Monday Oct 5 (week ahead):** 16 issues from 12 newsletters, covering Friday's close,
+  the weekend reads and this week's calendar.
+- Every number was checked against the exact sentence in the source email (story inventories
+  are kept locally, outside git).
+
+## Not yet email-safe (the Oct 2 samples only)
 These samples use modern CSS (grid, flex, `color-mix`, `text-wrap`) that browsers and PDF render
 but Gmail/Outlook don't. The production template must be **table-based with inlined CSS** (premailer),
 keeping the same look — see `instruction.md` Step 10. Keep the email under 102 KB (Gmail clipping).
