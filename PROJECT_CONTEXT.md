@@ -235,6 +235,34 @@ This file is the durable memory across sessions and for the team. To keep it fre
 
 ## 14. SESSION LOG (append newest at top)
 
+### Session 2026-10-06 — Pilot plan: 4 daily newsletters with Claude Code agents
+- **Team decision:** pause the pipeline build. For 1-2 months, produce 4 daily newsletters (Tech/AI,
+  Markets, Trading, Jobs & Careers) with Claude Code agents plus a human editor. Plan in
+  **`NEWSROOM_PLAN.md`** (shareable page: https://claude.ai/artifact/SAdn5mZ6qej3VVzHcrMmqp).
+- **Research inputs:** 4 parallel deep-research agents (GitHub repos, social/web collection incl. an
+  Agent-Reach source read, Claude Code mechanics, Trading/Jobs data + legal).
+- **Key findings:**
+  - Trading and Jobs have 0 inbox sources.
+  - Reddit's free API/RSS is reportedly closing 31 Oct / 13 Nov 2026.
+  - X has no free API. Cookie scraping risks bans, so use Apify or a burner account.
+  - YouTube: Data API uploads playlists plus local yt-dlp.
+  - Most market-data free tiers forbid redistribution.
+  - SEBI: no buy/sell calls without RA registration.
+  - Kit's free plan has an API; beehiiv's post API is paid only.
+  - Gmail/Yahoo bulk-sender rules apply.
+  - EU AI Act disclosure.
+- **Plan:**
+  - Fixed per-edition skeleton.
+  - 24-hour freshness by original publish time.
+  - Scripts collect; agents judge.
+  - 9 agent roles with bounded fix loops.
+  - Human approval enforced by a hook.
+  - US-morning sends produced in the IST afternoon.
+  - Week 0 setup, then dry runs, then public weeks 3-8, with day 30/60 go/no-go.
+- **CLAUDE.md** hard rules updated (collection stays scripted; editorial work by agents during the pilot).
+- **Open decisions D1-D10** for the team (audience and time zone, platform, domain, X access,
+  Claude plan, data licence, AI disclosure, final name).
+
 ### Session 2026-10-05 (later) — Owner decision: never reveal our sources
 - Owner: readers must not see that content comes from other newsletters, or how many covered a
   story. That would reveal the strategy.

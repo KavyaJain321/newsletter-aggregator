@@ -14,17 +14,17 @@ Live per-newsletter status is in `data/sources.csv`. Design is in `PHASE4_DESIGN
 - **Gmail access is LOCAL-only.** Only a session with the authenticated `tools/google-skill` tool
   can read `notifyy1008@gmail.com`. Cloud/teammate sessions usually can't — don't wait on Gmail there.
   Do Gmail work in the local session, push results (e.g. `data/sources.csv`), teammates `git pull`.
-- **No Claude/AI in the capture pipeline.** Phase 5 enrichment uses Groq or local Qwen — never Claude.
+- **Collection stays scripted (no AI in capture).** Since 2026-10-06 the team runs a 60-day pilot where
+  Claude Code agents do the *editorial* work (triage, research, writing, fact-check). See `NEWSROOM_PLAN.md`.
+- **Readers never see which newsletters we read** (instruction.md rule 11; enforced by a render test).
 
 ## How we collaborate (see CONTRIBUTING.md for detail)
 - Work on a **branch**, push, open a **PR** — don't commit directly to `main`. The owner reviews PRs.
 - When a session did meaningful work, **append a note to `PROJECT_CONTEXT.md`** (Session Log) and
   include it in your PR, so everyone sees what was discussed/decided.
 
-## Where things stand (2026-10-04)
-Building the generation pipeline in `pipeline/` step by step from `instruction.md` (branch
-`feat/pipeline-step0`). Step 0 (config, LLM client, on-demand isolated Ollama on trijya-3 with heat/load
-monitoring) and Step 1 (Gmail ingest) are done. All data lives in the shared **Supabase Postgres**
-four-layer content store (raw → structure → meaning → topics). Set `DATABASE_URL` in `.env`.
-Next: Step 2 (classify), then Step 3 (fill `blocks`/`links`/`media`).
-See `pipeline/README.md` and the Session Log in `PROJECT_CONTEXT.md`.
+## Where things stand (2026-10-06)
+**Pipeline build is paused.** For 1-2 months the team produces 4 daily newsletters (Tech, Markets,
+Trading, Jobs) with Claude Code agents + a human editor: read **`NEWSROOM_PLAN.md`** first.
+Reused from the pipeline: Gmail ingest -> Supabase (`DATABASE_URL` in `.env`), the issue schema and
+email renderer (`pipeline/compose`, `pipeline/render`), samples in `design/`. Session Log in `PROJECT_CONTEXT.md`.
