@@ -1,5 +1,8 @@
 # Gap review of NEWSROOM_PLAN.md (2026-10-13)
 
+> **Status:** all 50 gaps are addressed in `NEWSROOM_PLAN.md` v2 (2026-10-13); see its appendix for the
+> gap -> fix map. Keep this file as the record of why each rule exists.
+
 Two passes: an independent adversarial review (it didn't see the plan author's reasoning) and a
 check of the plan's assumptions against live data and the repo. **50 gaps: 8 Blockers, 22 High,
 18 Medium, 2 Low.** IDs are stable so the team can reference them in PRs.

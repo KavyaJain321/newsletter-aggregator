@@ -235,6 +235,30 @@ This file is the durable memory across sessions and for the team. To keep it fre
 
 ## 14. SESSION LOG (append newest at top)
 
+### Session 2026-10-13 — Plan review (50 gaps) and plan v2
+- **Review:** `NEWSROOM_PLAN_REVIEW.md` lists 50 gaps (8 Blockers, 22 High, 18 Medium, 2 Low), from an
+  independent review plus live checks. Two were live failures: the Supabase project had paused
+  after 7 idle days, and the Gmail token had expired (7-day testing-mode limit).
+- **Timing evidence:** source newsletters arrive 15:00-18:00 IST (TLDR/Neuron ~16:05, Axios Markets ~17:00,
+  Superhuman ~18:45); the US close arrives ~01:40 IST. A 12:30 IST cutoff would always run a day behind.
+- **Owner decisions:**
+  - **Audience = India-morning:** cutoff 05:00 IST; Markets 07:45, Tech 08:00, Jobs 08:30 IST.
+  - **Trading merged into Markets:** a trading section that stays internal until SEBI review.
+- **Plan v2 (`NEWSROOM_PLAN.md`) fixes all 50 gaps.** Every gap ID is mapped in its appendix.
+  Highlights:
+  - IST anchor (no daylight saving) and per-edition promises with "Why it matters in India".
+  - Evidence tiers A/B/C/Never; a link-check script; Google News link decoding.
+  - Licence table per market field; the skill orchestrates and subagents never nest.
+  - Deny-read on secrets; only `publish.py` holds the platform key and checks the approval hash.
+  - Story memory, a daily 04:30 heartbeat, API billing with a hard cap, backups and audit trail.
+  - Correction severity ladder; golden test set (fact-checker must catch at least 95%).
+  - Kit day-1 test, including per-edition unsubscribe.
+  - Growth owner, channels and targets; continue/cut/pipeline thresholds.
+  - Legal consult (IT Rules 2021, DPDP, SEBI); RACI; phases 0a (engineering) and 0b (business).
+- Shareable page updated (v2): https://claude.ai/artifact/SAdn5mZ6qej3VVzHcrMmqp
+- **Open (owner):** Supabase restore and Gmail re-authentication had not reached the laptop as of
+  13 Oct 22:45 IST; set the OAuth app to In production.
+
 ### Session 2026-10-06 — Pilot plan: 4 daily newsletters with Claude Code agents
 - **Team decision:** pause the pipeline build. For 1-2 months, produce 4 daily newsletters (Tech/AI,
   Markets, Trading, Jobs & Careers) with Claude Code agents plus a human editor. Plan in

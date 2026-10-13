@@ -23,8 +23,9 @@ Live per-newsletter status is in `data/sources.csv`. Design is in `PHASE4_DESIGN
 - When a session did meaningful work, **append a note to `PROJECT_CONTEXT.md`** (Session Log) and
   include it in your PR, so everyone sees what was discussed/decided.
 
-## Where things stand (2026-10-06)
-**Pipeline build is paused.** For 1-2 months the team produces 4 daily newsletters (Tech, Markets,
-Trading, Jobs) with Claude Code agents + a human editor: read **`NEWSROOM_PLAN.md`** first.
+## Where things stand (2026-10-13)
+**Pipeline build is paused.** 60-day pilot: **3 daily newsletters for Indian readers** (Markets 07:45,
+Tech 08:00, Jobs 08:30 IST; Trading merged into Markets) produced by Claude Code agents + a human
+approver. Read **`NEWSROOM_PLAN.md` (v2)** first; `NEWSROOM_PLAN_REVIEW.md` explains why each rule exists.
 Reused from the pipeline: Gmail ingest -> Supabase (`DATABASE_URL` in `.env`), the issue schema and
-email renderer (`pipeline/compose`, `pipeline/render`), samples in `design/`. Session Log in `PROJECT_CONTEXT.md`.
+renderer (`pipeline/compose`, `pipeline/render`), samples in `design/`. Session Log in `PROJECT_CONTEXT.md`.
